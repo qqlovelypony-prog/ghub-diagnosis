@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G HUB Fault diagnosis</title>
+<style>
+@font-face{font-family:PF;src:local("PingFang SC Light"),local("PingFangSC-Light");font-weight:300}
+@font-face{font-family:PF;src:local("PingFang SC Regular"),local("PingFangSC-Regular");font-weight:400}
+@font-face{font-family:PF;src:local("PingFang SC Medium"),local("PingFangSC-Medium");font-weight:500}
+@font-face{font-family:PF;src:local("PingFang SC Semibold"),local("PingFangSC-Semibold");font-weight:600 700}
+:root{
+  --bg:#000; --panel:#1e1f22; --field:#2a2b2f; --field-h:#323439; --line:#2f3136;
+  --text:#fff; --sub:#a3a5aa; --dim:#6b6e74;
+  --blue:#1199ff; --red:#ff4545; --green:#3ddc84; --amber:#ffb020;
+  --t-h1:34px; --t-h2:24px; --t-h3:24px; --t-sec:15px; --t-body:14px; --t-cap:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;
+  font-family:PF,"PingFang SC","Microsoft YaHei UI",sans-serif;-webkit-font-smoothing:antialiased}
+b,strong{font-weight:600}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+#c{position:fixed;inset:0;display:block;z-index:1;cursor:grab;touch-action:none}
+
+/* ---------- G HUB chrome ---------- */
+.title{position:fixed;left:112px;top:46px;font-size:var(--t-h1);font-weight:600;letter-spacing:.5px;z-index:5}
+.back{position:fixed;left:32px;top:48px;width:40px;height:40px;border-radius:8px;display:grid;place-items:center;z-index:5;transition:background .2s}
+.back:hover,.gear:hover{background:var(--field)}
+.back svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rail{position:fixed;left:24px;top:136px;display:flex;flex-direction:column;align-items:center;gap:18px;z-index:5}
+.rail button{width:56px;height:56px;border-radius:12px;display:grid;place-items:center;color:#9a9da3;transition:color .2s,background .2s}
+.rail button:not(.on):hover{color:#fff;background:var(--panel)}
+.rail button.on{background:#6690ff;color:#fff}
+.rail svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rail button.on svg{width:34px;height:34px;stroke-width:2}
+.gear{position:fixed;left:32px;bottom:32px;width:40px;height:40px;border-radius:8px;background:#0b0b0d;border:1px solid #1c1d21;display:grid;place-items:center;color:#fff;z-index:5;transition:background .2s}
+.gear svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- panel (left, next to the rail) ---------- */
+.panel{position:fixed;top:136px;bottom:32px;left:112px;width:440px;background:var(--panel);border-radius:10px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.045);display:flex;flex-direction:column;z-index:5}
+.ph{padding:28px 32px 0}
+.ph h2{font-size:var(--t-h2);font-weight:600}
+.tabs{display:flex;gap:28px;margin-top:20px;font-size:var(--t-sec);color:var(--sub);border-bottom:1px solid var(--line);position:relative}
+.tabs button{padding-bottom:10px;transition:color .2s;position:relative}
+.tabs button:hover,.tabs button.on{color:#fff}
+.tabs button.on{font-weight:500}
+.tabs .ink{position:absolute;bottom:-1px;height:2px;background:#fff}
+.tabs .cnt{position:absolute;top:-4px;right:-16px;min-width:16px;height:16px;border-radius:8px;background:var(--blue);color:#fff;font-size:10px;font-weight:600;display:none;place-items:center;padding:0 4px}
+.tabs .cnt.show{display:grid}
+.pb{flex:1;padding:24px 32px 0;overflow:auto;display:flex;flex-direction:column}
+.pb>*{flex:none}
+.pb>.hero{flex:1}
+.pb::-webkit-scrollbar{width:6px}.pb::-webkit-scrollbar-thumb{background:#3a3c41;border-radius:3px}
+.pf{padding:20px 32px 32px}
+.pf:empty{display:none}
+
+/* phase tracker */
+.phase{display:flex;gap:6px;margin-bottom:22px}
+.phase div{flex:1}
+.phase i{display:block;height:3px;border-radius:2px;background:var(--line);position:relative;overflow:hidden}
+.phase i::after{content:"";position:absolute;inset:0;background:var(--blue);transform:scaleX(0);transform-origin:left;transition:transform .6s cubic-bezier(.6,0,.2,1)}
+.phase span{display:block;font-size:var(--t-cap);color:var(--dim);margin-top:8px}
+.phase .done i::after{transform:scaleX(1);background:var(--sub)} .phase .done span{color:var(--sub)}
+.phase .cur i::after{transform:scaleX(1)} .phase .cur span{color:#fff;font-weight:500}
+
+.eyebrow{font-size:var(--t-cap);color:var(--sub);letter-spacing:.5px}
+.eyebrow b{color:var(--blue);font-weight:500}
+.h{font-size:var(--t-h3);font-weight:600;line-height:1.35;margin-top:8px;text-wrap:balance}
+.desc{font-size:var(--t-body);color:var(--sub);line-height:1.7;margin-top:8px}
+.sec{font-size:var(--t-cap);color:var(--sub);margin-top:24px;letter-spacing:.5px}
+.red{color:var(--red)} .blue{color:var(--blue)} .green{color:var(--green)}
+
+.rows{margin-top:10px;border-top:1px solid var(--line)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:13px 0;font-variant-numeric:tabular-nums;border-bottom:1px solid var(--line);font-size:var(--t-body)}
+.row>span:first-child{color:var(--sub)}
+.row>span:last-child,.row>b:last-child{text-align:right}
+
+/* choices */
+.choices{margin-top:10px;border-top:1px solid var(--line)}
+.ch{text-align:left;display:flex;align-items:center;gap:14px;padding:14px 8px;margin:0 -8px;width:calc(100% + 16px);border-bottom:1px solid var(--line);border-radius:4px;transition:background .2s}
+.ch:hover{background:rgba(255,255,255,.035)}
+.ch .rd{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--dim);flex:none;transition:border .2s}
+.ch.sel .rd{border:5px solid var(--blue)}
+.ch .tx{flex:1}
+.ch .tx div{font-size:var(--t-body)}
+.ch .tx small{display:block;font-size:var(--t-cap);color:var(--dim);margin-top:4px}
+.ch.sel .tx div{font-weight:500}
+.ch .cv{color:var(--dim);font-size:16px}
+
+/* checklist */
+.ck{width:calc(100% + 16px);margin:0 -8px;padding:13px 8px;text-align:left;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--line);border-radius:4px;transition:background .2s}
+.ck:hover{background:rgba(255,255,255,.035)}
+.ck .bx{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--dim);flex:none;margin-top:1px;display:grid;place-items:center;font-size:12px;color:transparent;transition:all .2s}
+.ck.on .bx{background:var(--blue);border-color:var(--blue);color:#fff}
+.ck div{font-size:var(--t-body)} .ck small{display:block;font-size:var(--t-cap);color:var(--dim);margin-top:4px}
+
+/* scan header: anime.js ring + counter */
+.scanhead{display:flex;align-items:center;gap:18px;position:relative}
+.scanhead .ring{width:80px;height:80px;transform:rotate(-90deg);flex:none}
+.scanhead .ring circle{fill:none;stroke-width:3}
+.scanhead .ring .bg{stroke:var(--line)}
+.scanhead .ring .fg{stroke:var(--blue);stroke-linecap:round;transition:stroke .3s}
+.scanhead .ring .fg.bad{stroke:var(--red)}
+.scanhead .num{position:absolute;left:0;top:0;width:80px;height:80px;display:flex;align-items:center;justify-content:center;gap:1px}
+.scanhead .num b{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.scanhead .num span{font-size:11px;color:var(--sub);margin-top:6px}
+.st{transition:color .2s}
+.st.now{color:#fff;font-weight:500}
+/* start hero */
+.hero{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:8px}
+.hero .h{margin-top:32px;font-size:26px;letter-spacing:.5px}
+.conn{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:var(--t-body);color:var(--sub)}
+.conn i{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.idle{width:132px;height:132px}
+.idle circle,.idle path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.idle .t{stroke:var(--line);stroke-width:1.5;stroke-dasharray:2 6;transform-origin:60px 60px}
+.idle .b{stroke:var(--field-h);stroke-width:1.5}
+.idle .w{stroke:var(--blue);stroke-width:2.5}
+/* repair-complete celebration */
+.yay{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:8px}
+.yay .badge{width:84px;height:84px;border-radius:50%;background:var(--green);display:grid;place-items:center;box-shadow:0 0 0 8px rgba(61,220,132,.15)}
+.yay .badge svg{width:42px;height:42px;fill:none;stroke:#06210f;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.yay .cf{position:absolute;width:7px;height:10px;border-radius:2px;margin:-5px 0 0 -3px;pointer-events:none}
+/* status list */
+.st{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:var(--t-body)}
+.st .ic{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;flex:none;font-weight:600}
+.st .ok{background:var(--sub);color:#000}
+.st .bad{background:var(--red);color:#fff}
+.st .run{border:2px solid var(--blue);border-top-color:transparent;animation:spin .7s linear infinite}
+.st .wait{border:1.5px solid var(--dim)}
+.st em{margin-left:auto;white-space:nowrap;padding-left:12px;font-style:normal;font-size:var(--t-cap);color:var(--sub)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.img{height:168px;border-radius:6px;margin-top:16px;border:1px dashed #44474d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--dim);font-size:var(--t-cap);text-align:center;padding:10px}
+.img svg{width:26px;height:26px;stroke:#55585e;fill:none;stroke-width:1.5}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.tools span{font-size:var(--t-cap);background:var(--field);color:var(--sub);padding:5px 9px;border-radius:4px}
+
+.partcard{display:flex;align-items:center;gap:16px;background:var(--field);border-radius:6px;padding:16px;margin-top:14px}
+.partcard .ring{width:52px;height:52px;border-radius:50%;border:1.5px solid var(--red);display:grid;place-items:center;flex:none}
+.partcard .ring i{width:14px;height:14px;border-radius:50%;background:var(--red)}
+.partcard b{font-size:17px}
+.partcard small{display:block;font-size:var(--t-cap);color:var(--sub);margin-top:3px}
+.partcard .tag{margin-left:auto;white-space:nowrap;flex:none;font-size:var(--t-cap);color:var(--red);background:rgba(255,69,69,.14);padding:3px 8px;border-radius:4px}
+
+.fb{margin-top:14px;font-size:var(--t-cap);line-height:1.6;display:none}
+.fb.show{display:block}
+.fb.good{color:var(--green)} .fb.info{color:var(--amber)}
+
+/* buttons — plain, like G HUB */
+.btn{width:100%;height:48px;border-radius:6px;background:var(--blue);display:flex;align-items:center;justify-content:center;gap:8px;font-size:var(--t-sec);font-weight:600;transition:background .2s,transform .1s}
+.btn:hover{background:#2aa5ff}
+.btn:active{transform:scale(.985)}
+.btn[disabled]{background:var(--field);color:var(--dim);cursor:not-allowed}
+.btn.ok{background:var(--green);color:#06210f}
+.btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:3;stroke-dasharray:24;stroke-dashoffset:24;display:none}
+.btn.ok svg{display:block;animation:draw .35s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.btn2{width:100%;height:48px;border-radius:6px;background:var(--field);display:flex;align-items:center;justify-content:center;font-size:var(--t-sec);margin-top:10px;transition:background .2s}
+.btn2:hover{background:var(--field-h)}
+.note{text-align:center;margin-top:12px;font-size:var(--t-cap);color:var(--dim)}
+.note button{color:var(--blue);font-size:var(--t-cap)}
+.note button:hover{text-decoration:underline}
+.meter{display:flex;gap:4px;height:46px;align-items:flex-end;margin-top:16px}
+.meter i{flex:1;background:var(--field);border-radius:2px;height:12%;transition:height .25s,background .25s}
+.meter i.on{background:var(--green)}
+
+/* store */
+.item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.item .th{width:64px;height:64px;border-radius:6px;border:1px dashed #44474d;flex:none}
+.item .nm{font-size:var(--t-body);font-weight:500}
+.item small{display:block;font-size:var(--t-cap);color:var(--dim);margin-top:3px}
+.item .pr{margin-left:auto;text-align:right;font-size:var(--t-body);white-space:nowrap}
+.item .add{margin-top:10px;font-size:var(--t-cap);color:var(--blue)}
+.item .add.in{color:var(--green)}
+.need{font-size:11px;color:var(--red);background:rgba(255,69,69,.14);padding:2px 6px;border-radius:3px;margin-left:6px;font-weight:400}
+
+/* ---------- 3D overlays: G HUB style callouts ---------- */
+.co{position:fixed;left:0;top:0;width:0;height:0;z-index:4;pointer-events:none}
+.co .dot{position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50%;background:var(--c)}
+.co.pulse .dot{animation:ping 1.4s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 var(--c)}100%{box-shadow:0 0 0 16px transparent}}
+.co svg{position:absolute;left:0;top:0;overflow:visible}
+.co polyline{fill:none;stroke:var(--c);stroke-width:1}
+.co .lab{position:absolute;white-space:nowrap;font-size:15px;font-weight:600;color:var(--c);background:rgba(0,0,0,.62);padding:3px 10px;border-radius:4px;margin:-3px 0 0 -10px}
+#tip{position:fixed;pointer-events:none;z-index:20;background:rgba(30,31,34,.96);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-size:var(--t-cap);min-width:200px;opacity:0;transform:translateY(4px);transition:opacity .15s,transform .15s}
+#tip.show{opacity:1;transform:none}
+#tip b{display:block;font-size:var(--t-sec);margin-bottom:6px}
+#tip .r{display:flex;justify-content:space-between;gap:16px;color:var(--sub);margin-top:4px}
+.toast{position:fixed;left:calc(50% + 276px);top:60px;transform:translate(-50%,-10px);background:var(--panel);border:1px solid var(--line);padding:10px 16px;border-radius:6px;font-size:var(--t-body);z-index:40;opacity:0;transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.hint{position:fixed;left:150px;bottom:30px;font-size:var(--t-cap);color:var(--dim);z-index:5}
+.loading{position:fixed;left:calc(50% + 276px);top:50%;transform:translate(-50%,-50%);font-size:var(--t-body);color:var(--dim);z-index:4}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="loading" id="loading">Loading model…</div>
+
+<button class="back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6"/></svg></button>
+<div class="title">G923</div>
+<div class="rail">
+  <button aria-label="Add device" title="Add device"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M12 8.5v7M8.5 12h7"/></svg></button>
+  <button class="on" aria-label="Wheel" aria-current="page" title="Wheel"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.8 11.2h16.4M12 13.6v6.8"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg></button>
+</div>
+<button class="gear" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+
+<aside class="panel">
+  <div class="ph"><h2>Fault diagnosis</h2>
+    <div class="tabs" id="tabs">
+      <button class="on" data-v="flow">Diagnose &amp; repair</button>
+      <button data-v="store">Parts store<span class="cnt" id="cnt">0</span></button>
+      <i class="ink" id="ink"></i>
+    </div>
+  </div>
+  <div class="pb" id="pb"></div>
+  <div class="pf" id="pf"></div>
+</aside>
+
+<div id="tip"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<script src="assets/sim-wheel.js"></script>
+<script src="assets/sim-wheel-hi.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+
+/* =========================================================
+   PARTS (glb node name → logical part)
+   ========================================================= */
+const PARTS = {
+  contact: {n:'Quick-release contact ring', z:'Back · Quick release', u:1, re:/^qr_collar$/},
+  qr:      {n:'Quick release', z:'Back',           u:1, re:/^qr_(flange|shaft)$/},
+  leds:    {n:'Rev light bar', z:'Front',           u:0, re:/^led_/},
+  hub:     {n:'G centre hub', z:'Front',           u:0, re:/^hub_/},
+  dpad:    {n:'D-pad', z:'Front',           u:1, re:/^dpad/},
+  buttons: {n:'Buttons', z:'Front',           u:1, re:/^button_/},
+  dials:   {n:'Dials', z:'Front',           u:1, re:/^dial_/},
+  paddles: {n:'Shift paddles', z:'Back',           u:1, re:/^paddle/},
+  grips:   {n:'Grips', z:'Sides',           u:1, re:/^(grip|spoke)_/},
+  body:    {n:'Body panel', z:'Centre',           u:0, re:/^body$/},
+};
+const partOf = n => Object.keys(PARTS).find(k => PARTS[k].re.test(n)) || 'body';
+
+/* =========================================================
+   THREE — neutral studio light, like a G HUB product shot
+   ========================================================= */
+const canvas = $('#c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;   // applied in the final post pass (the scene is rendered to a float target first)
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.VSMShadowMap; renderer.shadowMap.autoUpdate = false;
+const scene = new THREE.Scene();
+scene.background = null;   // the gradient background is drawn in the final post pass, behind the model
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), .015).texture;   // studio environment: reflections only
+scene.environmentIntensity = 1.0;
+
+const camera = new THREE.PerspectiveCamera(30, 1, .01, 20);
+/* lights ride on the camera, so the wheel is lit the same way from every angle */
+scene.add(camera);
+function camLight(color, intensity, x, y, z){
+  const l = new THREE.DirectionalLight(color, intensity);
+  l.position.set(x, y, z); l.target.position.set(0, 0, -.62);   // the wheel sits about 0.62 in front of the camera
+  camera.add(l, l.target); return l;
+}
+camLight(0xffffff, 1.5, -.75, .8, .1);       // soft key, top left
+camLight(0xffffff, .35,  .9, .05, .1);       // weak fill, right
+camLight(0xdbe8ff, 3.4, -.9, .45, -1.5);     // rim from behind, cool white
+camLight(0xfff0de, 2.8,  .95, .3, -1.5);     // rim from behind, slightly warm
+scene.add(new THREE.HemisphereLight(0xffffff, 0x101114, .25));
+/* floor: shadow catcher + a faint mirror image; the shadow light is fixed in the world, straight above */
+const FLOOR_Y = -.108;
+const shadowLight = new THREE.DirectionalLight(0xffffff, .35);
+shadowLight.position.set(0, .6, .08); shadowLight.castShadow = true;
+shadowLight.shadow.mapSize.set(1024, 1024); shadowLight.shadow.radius = 9; shadowLight.shadow.blurSamples = 16; shadowLight.shadow.bias = -.0005;
+Object.assign(shadowLight.shadow.camera, {left:-.26, right:.26, top:.2, bottom:-.2, near:.2, far:1});
+scene.add(shadowLight);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), new THREE.ShadowMaterial({opacity:.42}));
+floor.rotation.x = -Math.PI/2; floor.position.y = FLOOR_Y; floor.receiveShadow = true; scene.add(floor);
+const mirrorRoot = new THREE.Group(), mirrorRig = new THREE.Group();
+mirrorRoot.scale.y = -1; mirrorRoot.position.y = 2*FLOOR_Y; mirrorRoot.add(mirrorRig); scene.add(mirrorRoot);
+const PANEL_SHIFT = -276;   // panel is on the left now: push the model into the free area on the right
+const PR = Math.min(devicePixelRatio, 2);
+/* bloom only for the emissive parts: the scene is rendered once with everything black except the LEDs and the logo */
+const bloomComposer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(4, 4, {type:THREE.HalfFloatType}));
+bloomComposer.renderToScreen = false;
+const bloomRender = new RenderPass(scene, camera); bloomRender.clearColor = new THREE.Color(0); bloomRender.clearAlpha = 0;
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(256, 256), .4, .4, 0);
+bloomComposer.addPass(bloomRender); bloomComposer.addPass(bloomPass);
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(4, 4, {type:THREE.HalfFloatType, samples: PR >= 2 ? 2 : 4}));
+const mainRender = new RenderPass(scene, camera); mainRender.clearColor = new THREE.Color(0); mainRender.clearAlpha = 0;
+const finalPass = new ShaderPass(new THREE.ShaderMaterial({
+  uniforms:{ tDiffuse:{value:null}, tBloom:{value:bloomComposer.renderTarget2.texture}, uCenter:{value:new THREE.Vector2(.5,.5)},
+             uAspect:{value:1}, uTime:{value:0}, uExposure:{value:1.0} },
+  vertexShader:'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader:`uniform sampler2D tDiffuse; uniform sampler2D tBloom; uniform vec2 uCenter; uniform float uAspect; uniform float uTime; uniform float uExposure; varying vec2 vUv;
+    vec3 rrtFit(vec3 v){ vec3 a = v * (v + 0.0245786) - 0.000090537; vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081; return a / b; }
+    vec3 acesMap(vec3 c){
+      const mat3 I = mat3(vec3(0.59719, 0.07600, 0.02840), vec3(0.35458, 0.90834, 0.13383), vec3(0.04823, 0.01566, 0.83777));
+      const mat3 O = mat3(vec3(1.60475, -0.10208, -0.00327), vec3(-0.53108, 1.10813, -0.07276), vec3(-0.07367, -0.00605, 1.07602));
+      return clamp(O * rrtFit(I * (c * uExposure / 0.6)), 0.0, 1.0); }
+    vec3 toSRGB(vec3 c){ return pow(c, vec3(1.0 / 2.2)); }
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+    void main(){
+      vec4 base = texture2D(tDiffuse, vUv); vec3 bloom = texture2D(tBloom, vUv).rgb;
+      float a = clamp(base.a, 0.0, 1.0);
+      vec3 model = toSRGB(acesMap(base.rgb / max(a, 0.001) + bloom));
+      // background: dark radial gradient centred on the wheel  (#1a1a1c -> #050505)
+      float d = length((vUv - uCenter) * vec2(uAspect, 1.0));
+      vec3 bg = mix(vec3(0.102, 0.102, 0.110), vec3(0.020), smoothstep(0.0, 0.78, d));
+      vec3 col = mix(bg, model, a) + toSRGB(acesMap(bloom)) * (1.0 - a);
+      col *= 1.0 - 0.22 * smoothstep(0.45, 1.05, length((vUv - 0.5) * vec2(1.0, 0.9)) * 1.35);   // slight vignette
+      col += (hash(gl_FragCoord.xy + fract(uTime) * 91.7) - 0.5) * 0.018;                        // very light grain (also hides gradient banding)
+      gl_FragColor = vec4(col, 1.0);
+    }`
+}));
+composer.addPass(mainRender); composer.addPass(finalPass);
+function resize(){
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h); camera.aspect = w/h;
+  camera.setViewOffset(w, h, PANEL_SHIFT, 0, w, h);   // centre the model in the area right of the panel
+  camera.updateProjectionMatrix();
+  composer.setPixelRatio(PR); composer.setSize(w, h);
+  bloomComposer.setPixelRatio(PR/2); bloomComposer.setSize(w, h);   // bloom at half resolution
+  finalPass.uniforms.uCenter.value.set(.5 - PANEL_SHIFT/w, .5); finalPass.uniforms.uAspect.value = w/h;
+}
+addEventListener('resize', resize); resize();
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = .08; controls.rotateSpeed = .9;
+controls.enablePan = true; controls.screenSpacePanning = true; controls.panSpeed = .6;   // left-drag rotates, right-drag (or shift-drag) moves, wheel zooms
+controls.minDistance = .2; controls.maxDistance = 1.2; controls.zoomSpeed = .8;
+controls.addEventListener('change', ()=>{ controls.target.clampScalar(-.12, .12); });
+
+const VIEWS = {
+  front:    {p:[-.19,.08,.64], t:[0,0,0]},
+  back:     {p:[.25,.1,-.58],  t:[0,.005,-.01]},
+  backNear: {p:[.27,.11,-.5],   t:[0,.005,-.02]},
+};
+function view(n, d=1.4){
+  const v = VIEWS[n];
+  gsap.to(camera.position,{x:v.p[0],y:v.p[1],z:v.p[2],duration:d,ease:'power3.inOut'});
+  gsap.to(controls.target,{x:v.t[0],y:v.t[1],z:v.t[2],duration:d,ease:'power3.inOut'});
+}
+camera.position.set(-.3,.12,.8); controls.target.set(0,0,0);
+
+/* light-beam scan: a bright band (plus a short afterglow) sweeps through the model in world space */
+const SCAN_U = { uScanY:{value:9}, uScanOn:{value:0} };
+function addScanBeam(m){
+  m.onBeforeCompile = sh=>{
+    Object.assign(sh.uniforms, SCAN_U);
+    sh.vertexShader = 'varying vec3 vScanW;\n' + sh.vertexShader.replace('#include <project_vertex>',
+      '#include <project_vertex>\n vScanW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = 'uniform float uScanY; uniform float uScanOn; varying vec3 vScanW;\n' + sh.fragmentShader.replace('#include <emissivemap_fragment>',
+      `#include <emissivemap_fragment>
+       float sd = min(abs(vScanW.y - uScanY), 1.0);          // clamp keeps exp() finite when the line is parked off-model
+       float line = exp(-(sd*sd) / (0.0009*0.0009));           // a fine, crisp line
+       float halo = exp(-(sd*sd) / (0.016*0.016));             // a wide, faint sheen around it
+       totalEmissiveRadiance += vec3(0.78, 0.88, 1.0) * (line * 0.9 + halo * 0.07) * uScanOn;`);
+  };
+  m.customProgramCacheKey = ()=>'scanbeam';
+}
+/* the visible light sheet that travels with the band */
+const sheetMat = new THREE.ShaderMaterial({
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, side:THREE.DoubleSide,
+  uniforms:{ uOn:{value:0} },
+  vertexShader:'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+  fragmentShader:`uniform float uOn; varying vec2 vUv;
+    void main(){ vec2 c = vUv - .5; float r = length(c * vec2(1.0, 1.6));
+      float a = smoothstep(.5, .0, r) * .06 + smoothstep(.5, .47, r) * smoothstep(.42, .47, r) * .45;
+      gl_FragColor = vec4(vec3(.25,.65,1.0) * a * uOn, 1.0); }`
+});
+const sheet = new THREE.Mesh(new THREE.PlaneGeometry(.42, .26), sheetMat);
+sheet.rotation.x = -Math.PI/2;   // ring sheet not added: rejected as ugly
+function beam(on){ gsap.to([SCAN_U.uScanOn, sheetMat.uniforms.uOn], {value:on?1:0, duration:.35}); }
+function beamAt(y){ SCAN_U.uScanY.value = y; sheet.position.y = y; }
+
+/* model: the hi-res textured wheel is ONE mesh, so parts are regions (ellipsoids in wheel space) instead of separate meshes.
+   The quick-release assembly (flange, shaft, yellow contact ring) still comes from the team model and sits on its back. */
+const REG = [   // [part, centre, half-size]
+  ['dpad',    [-.058, .056, .030], [.020, .020, .012]],
+  ['buttons', [ .062, .050, .030], [.029, .029, .012]],
+  ['leds',    [-.003, .066, .027], [.037, .009, .010]],
+  ['hub',     [-.003, .010, .030], [.035, .035, .014]],
+  ['dials',   [-.036,-.052, .034], [.022, .022, .020]],
+  ['dials',   [ .034,-.052, .034], [.022, .022, .020]],
+  ['grips',   [-.118,-.012, .012], [.032, .082, .030]],
+  ['grips',   [ .118,-.012, .012], [.032, .082, .030]],
+  ['paddles', [-.092,-.012,-.030], [.034, .052, .013]],
+  ['paddles', [ .092,-.012,-.030], [.034, .052, .013]],
+];
+const REG_U = {
+  uRegC:{value:REG.map(r=>new THREE.Vector3(...r[1]))},
+  uRegH:{value:REG.map(r=>new THREE.Vector3(...r[2]))},
+  uRegE:{value:REG.map(()=>new THREE.Vector4())},     // rgb = highlight colour, a = strength
+  uDebug:{value: new URLSearchParams(location.search).has('regions') ? 1 : 0},
+  uBloomOnly:{value:0}, uSweep:{value:-1},
+};
+function addWheelShader(m){
+  m.onBeforeCompile = sh=>{
+    Object.assign(sh.uniforms, SCAN_U, REG_U);
+    sh.vertexShader = 'varying vec3 vScanW; varying vec3 vLP; varying vec3 vLN;\n' + sh.vertexShader.replace('#include <project_vertex>',
+      '#include <project_vertex>\n vScanW = (modelMatrix * vec4(transformed, 1.0)).xyz; vLP = transformed; vLN = normal;');
+    sh.fragmentShader = `uniform float uScanY; uniform float uScanOn; uniform float uDebug; uniform float uBloomOnly; uniform float uSweep; varying vec3 vScanW; varying vec3 vLP; varying vec3 vLN;
+      float gLum, gBright, gDark, gHr, gChrome, gDial, gGrip; vec3 gGlow;
+      uniform vec3 uRegC[${REG.length}]; uniform vec3 uRegH[${REG.length}]; uniform vec4 uRegE[${REG.length}];
+      float backPlate(){ return step(vLP.z, 0.0125) * step(0.003, vLP.z) * step(vLN.z, -0.3) * step(abs(vLP.x), 0.095); }\n` + sh.fragmentShader
+      // the generated model has a copy of the front face printed on its back: paint that plate plain dark plastic
+      .replace('#include <map_fragment>', `#include <map_fragment>
+       diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.028), backPlate());
+       // the model is one textured mesh, so "materials" are picked per area from position + texture colour
+       gLum = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+       float mx = max(diffuseColor.r, max(diffuseColor.g, diffuseColor.b)), mn = min(diffuseColor.r, min(diffuseColor.g, diffuseColor.b));
+       float neutral = 1.0 - smoothstep(0.15, 0.35, (mx - mn) / max(mx, 0.001));
+       gBright = smoothstep(0.07, 0.2, gLum) * neutral;                    // silver / light grey texels
+       gDark = 1.0 - smoothstep(0.05, 0.14, gLum);                         // leather and the dark plate
+       gHr = length(vLP.xy - vec2(-0.003, 0.010));                         // distance from the hub centre
+       float front = step(0.018, vLP.z);
+       gGrip = step(0.088, abs(vLP.x));
+       float cap = step(0.07, abs(vLP.x)) * max(step(0.046, vLP.y), step(vLP.y, -0.060));   // chrome end caps
+       float ring = front * smoothstep(0.022, 0.025, gHr) * (1.0 - smoothstep(0.037, 0.040, gHr));   // hub ring
+       gChrome = gBright * max(cap, ring);
+       gDial = 1.0 - smoothstep(0.9, 1.0, min(length((vLP - uRegC[4]) / uRegH[4]), length((vLP - uRegC[5]) / uRegH[5])));
+       diffuseColor.rgb *= mix(1.0, 0.5, gDial * gBright);                // dials: darker brushed metal
+       float logo = front * (1.0 - smoothstep(0.017, 0.020, gHr)) * smoothstep(0.3, 0.55, gLum);
+       float led = (1.0 - smoothstep(0.85, 1.0, length((vLP - uRegC[2]) / uRegH[2]))) * smoothstep(0.25, 0.5, gLum);
+       gGlow = vec3(1.0) * logo * 0.5 + vec3(0.74, 0.58, 1.0) * led * 1.6;   // emissive: G logo + LED strip`)
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+       roughnessFactor = mix(roughnessFactor, mix(0.6, 0.8, gGrip), gDark * step(0.04, gHr));   // plate 0.6, leather 0.8
+       roughnessFactor = mix(roughnessFactor, 0.35, gDial * gBright);
+       roughnessFactor = mix(roughnessFactor, 0.15, gChrome);
+       roughnessFactor = mix(roughnessFactor, 0.62, backPlate());`)
+      .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
+       metalnessFactor = mix(metalnessFactor, 0.0, gDark * step(0.04, gHr));
+       metalnessFactor = mix(metalnessFactor, 1.0, max(gDial * gBright, gChrome));
+       metalnessFactor = mix(metalnessFactor, 0.0, backPlate());`)
+      .replace('#include <opaque_fragment>', '#include <opaque_fragment>\n if(uBloomOnly > 0.5) gl_FragColor = vec4(gGlow, 1.0);')
+      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+       float sd = min(abs(vScanW.y - uScanY), 1.0);          // clamp keeps exp() finite when the line is parked off-model
+       float line = exp(-(sd*sd) / (0.0009*0.0009));           // a fine, crisp line
+       float halo = exp(-(sd*sd) / (0.016*0.016));             // a wide, faint sheen around it
+       totalEmissiveRadiance += vec3(0.78, 0.88, 1.0) * (line * 0.9 + halo * 0.07) * uScanOn;
+       totalEmissiveRadiance += gGlow;
+       // slow light sweep: a soft diagonal sheen that crosses the wheel every few seconds (paused while scanning)
+       float sw = (dot(vScanW.xy, vec2(0.94, 0.34)) - uSweep) / 0.04;
+       totalEmissiveRadiance += vec3(1.0) * exp(-sw*sw) * 0.07 * (0.3 + 2.5 * gLum) * (1.0 - uScanOn);
+       float lum = dot(diffuseColor.rgb, vec3(0.3333));
+       for(int i = 0; i < ${REG.length}; i++){
+         float k = 1.0 - smoothstep(0.82, 1.0, length((vLP - uRegC[i]) / uRegH[i]));
+         totalEmissiveRadiance += uRegE[i].rgb * uRegE[i].a * k * (0.45 + 1.6 * lum);
+         totalEmissiveRadiance += uDebug * k * vec3(fract(float(i) * 0.37), fract(float(i) * 0.71 + 0.3), 0.6) * 0.5;
+       }`);
+  };
+  m.customProgramCacheKey = ()=>'wheel-hi';
+}
+
+const meshes = [];                    // quick-release meshes only (flange, shaft, contact ring)
+const rig = new THREE.Group();        // whole wheel
+const body = new THREE.Group();       // the textured wheel
+const qr = new THREE.Group();         // flange + shaft + contact ring
+let collar = null, wheelMesh = null;
+rig.add(body, qr); scene.add(rig);
+let modelReady, ready = new Promise(r=>modelReady=r);
+const b64buf = t => { const bin = atob(t), u8 = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i); return u8.buffer; };
+const parseGlb = t => new Promise((res, rej)=>new GLTFLoader().parse(b64buf(t), '', res, rej));
+Promise.all([parseGlb(window.SIM_WHEEL_HI), parseGlb(window.SIM_WHEEL_GLB)]).then(([hi, team])=>{
+  // 1 — textured wheel (already centred, upright and scaled to the team model's size when it was exported)
+  hi.scene.traverse(o=>{ if(o.isMesh) wheelMesh = o; });
+  const wm = wheelMesh.material;
+  wm.envMapIntensity = 1.25; if(wm.map) wm.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  addWheelShader(wm);
+  body.add(wheelMesh);
+  wheelMesh.castShadow = true;
+  // faint mirror image under the floor (same geometry, unlit, fades out with depth)
+  const mm = new THREE.MeshBasicMaterial({map:wm.map, color:0x8a8f99, transparent:true, opacity:.09, depthWrite:false});
+  mm.onBeforeCompile = sh=>{
+    sh.vertexShader = 'varying float vWy;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n vWy = (modelMatrix * vec4(transformed, 1.0)).y;');
+    sh.fragmentShader = 'varying float vWy;\n' + sh.fragmentShader.replace('#include <opaque_fragment>', `#include <opaque_fragment>\n gl_FragColor.a *= smoothstep(${(FLOOR_Y-.11).toFixed(3)}, ${FLOOR_Y.toFixed(3)}, vWy) * step(vWy, ${FLOOR_Y.toFixed(3)});`);
+  };
+  mirrorRig.add(new THREE.Mesh(wheelMesh.geometry, mm));
+  // 2 — quick-release assembly from the team model, placed on the back plate
+  const list = [];
+  team.scene.traverse(o=>{ if(o.isMesh && /^qr_/.test(o.name)) list.push(o); });
+  const c = new THREE.Box3().setFromObject(team.scene).getCenter(new THREE.Vector3());
+  list.forEach(o=>{
+    o.geometry = toCreasedNormals(o.geometry, Math.PI/5);
+    o.geometry.translate(-c.x, -c.y - .001, -c.z + .003);
+    const m = o.material.clone();
+    m.color.convertSRGBToLinear();
+    if(o.name !== 'qr_collar'){ m.color.multiplyScalar(.4); m.roughness = .58; m.metalness = .25; }   // match the wheel's dark metal
+    addScanBeam(m);
+    m.transparent = o.name === 'qr_collar';   // only the contact ring fades in the repair animation
+    o.material = m;
+    o.userData.part = partOf(o.name);
+    o.userData.e0 = m.emissive.clone(); o.userData.i0 = m.emissiveIntensity;
+    o.castShadow = true;
+    qr.add(o);
+    if(o.name==='qr_collar') collar = o;
+    meshes.push(o);
+  });
+  $('#loading').remove();
+  view('front', 1.8);
+  gsap.from(rig.rotation,{y:-.5,duration:1.8,ease:'power3.out'});
+  modelReady();
+});
+const partCenter = part => {
+  const b = new THREE.Box3();
+  meshes.filter(o=>o.userData.part===part).forEach(o=>{ o.geometry.computeBoundingBox(); b.union(o.geometry.boundingBox); });
+  if(!b.isEmpty()){ const c = b.getCenter(new THREE.Vector3()); c.y = b.max.y; return c; }   // anchor on the top edge of the ring
+  const rs = REG.filter(r=>r[0]===part);
+  if(!rs.length) return new THREE.Vector3(0, .04, .028);
+  const r = rs[rs.length-1];           // right-hand one when a part has two (callouts point to the right)
+  return new THREE.Vector3(r[1][0], r[1][1], r[1][2]);
+};
+
+/* highlight states: hover / selected (blue), cue (blue pulse), fault (red pulse), fixed (green) */
+let hoverPart = null, selPart = null, cuePart = null, faultPart = null, fixedPart = null;
+const C = {blue:new THREE.Color(0x1199ff), red:new THREE.Color(0xff2a2a), green:new THREE.Color(0x3ddc84)};
+function stateOf(p, pulse){
+  if(p===faultPart) return [C.red, .25 + .55*pulse];
+  if(p===fixedPart) return [C.green, .35];
+  if(p===cuePart)   return [C.blue, .1 + .3*pulse];
+  if(p===hoverPart) return [C.blue, .4];
+  if(p===selPart)   return [C.blue, .28];
+  return null;
+}
+function paint(t){
+  const pulse = .5 + .5*Math.sin(t*5);
+  meshes.forEach(o=>{
+    const st = stateOf(o.userData.part, pulse), m = o.material;
+    if(st){ m.emissive.copy(st[0]); m.emissiveIntensity = st[1]; }
+    else { m.emissive.copy(o.userData.e0); m.emissiveIntensity = o.userData.i0; }
+  });
+  REG.forEach((r,i)=>{
+    const st = stateOf(r[0], pulse), e = REG_U.uRegE.value[i];
+    if(st) e.set(st[0].r, st[0].g, st[0].b, st[1]); else e.w = 0;
+  });
+}
+
+/* =========================================================
+   CALLOUTS — G HUB style dot + leader anchored to a part (line drawn with anime.js)
+   ========================================================= */
+const callouts = [];
+function callout(part, text, color, dx, dy, pulse=true){
+  const el = document.createElement('div');
+  el.className = 'co' + (pulse?' pulse':''); el.style.setProperty('--c', color);
+  const ex = dx*.35;
+  const side = dx < 0 ? `right:${-dx}px` : `left:${dx}px`;
+  el.innerHTML = `<div class="dot"></div><svg width="1" height="1"><polyline points="0,0 ${ex},${dy} ${dx},${dy}"/></svg><div class="lab" style="${side};top:${dy-26}px">${text}</div>`;
+  document.body.appendChild(el);
+  const holder = part==='qr'||part==='contact' ? qr : body;
+  callouts.push({el, pt:partCenter(part), holder});
+  anime({targets:el.querySelector('polyline'), strokeDashoffset:[anime.setDashoffset,0], duration:700, easing:'easeOutQuart'});
+  anime({targets:el.querySelector('.lab'), opacity:[0,1], translateY:[6,0], delay:350, duration:450, easing:'easeOutQuart'});
+  anime({targets:el.querySelector('.dot'), scale:[0,1], duration:400, easing:'easeOutBack'});
+}
+function clearCallouts(){ callouts.splice(0).forEach(c=>c.el.remove()); }
+const v3 = new THREE.Vector3();
+function placeCallouts(){
+  callouts.forEach(c=>{
+    v3.copy(c.pt).applyMatrix4(c.holder.matrixWorld).project(camera);
+    c.el.style.transform = `translate(${(v3.x*.5+.5)*innerWidth}px,${(-v3.y*.5+.5)*innerHeight}px)`;
+  });
+}
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(), tip = $('#tip');
+let diagnosedOnce = false;
+const PLATE = new THREE.Box3(new THREE.Vector3(-.088,-.062,.007), new THREE.Vector3(.088,.082,.027));
+const _inv = new THREE.Matrix4(), _lr = new THREE.Ray(), _hit = new THREE.Vector3();
+function pick(e){
+  mouse.x = e.clientX/innerWidth*2-1; mouse.y = -(e.clientY/innerHeight)*2+1;
+  ray.setFromCamera(mouse, camera);
+  // analytic picking in wheel space: ellipsoid regions, the plate box, then the quick-release meshes — nearest wins
+  _lr.copy(ray.ray).applyMatrix4(_inv.copy(rig.matrixWorld).invert());
+  const o = _lr.origin, d = _lr.direction; let best = null, bt = Infinity;
+  REG.forEach(([part,c,h])=>{
+    const ox=(o.x-c[0])/h[0], oy=(o.y-c[1])/h[1], oz=(o.z-c[2])/h[2], dx=d.x/h[0], dy=d.y/h[1], dz=d.z/h[2];
+    const A=dx*dx+dy*dy+dz*dz, B=ox*dx+oy*dy+oz*dz, D=B*B-A*(ox*ox+oy*oy+oz*oz-1);
+    if(D<0) return; const t=(-B-Math.sqrt(D))/A; if(t>0 && t<bt){ bt=t; best=part; }
+  });
+  if(_lr.intersectBox(PLATE, _hit)){ const t=_hit.distanceTo(o); if(t<bt-.004){ bt=t; best='body'; } }
+  const hit = ray.intersectObjects(meshes.filter(m=>m.material.opacity>.3), false)[0];
+  if(hit && hit.distance<bt) best = hit.object.userData.part;
+  return best;
+}
+function showTip(part, e){
+  const p = PARTS[part];
+  const st = part===faultPart ? ['● Poor contact','var(--red)']
+           : part===fixedPart ? ['● Replaced','var(--green)']
+           : diagnosedOnce ? ['● Normal','var(--green)'] : ['Not checked','var(--dim)'];
+  tip.innerHTML = `<b>${p.n}</b>
+    <div class="r"><span>Location</span><span>${p.z}</span></div>
+    <div class="r"><span>Repair method</span><span style="color:${p.u?'var(--blue)':'var(--sub)'}">${p.u?'Self-replaceable':'Service centre'}</span></div>
+    <div class="r"><span>Status</span><span style="color:${st[1]}">${st[0]}</span></div>`;
+  tip.style.left = (e.clientX+18)+'px'; tip.style.top = (e.clientY+18)+'px'; tip.classList.add('show');
+}
+let down = null, dragging = false;
+canvas.addEventListener('pointerdown', e=>{ down = {x:e.clientX, y:e.clientY}; dragging = false; });
+canvas.addEventListener('pointermove', e=>{
+  if(down && Math.hypot(e.clientX-down.x, e.clientY-down.y) > 4){ dragging = true; hoverPart = null; tip.classList.remove('show'); canvas.style.cursor = 'grabbing'; }
+  if(down) return;
+  hoverPart = pick(e);
+  canvas.style.cursor = hoverPart ? 'pointer' : 'grab';
+  if(hoverPart) showTip(hoverPart, e); else tip.classList.remove('show');
+});
+addEventListener('pointerup', e=>{
+  const wasDown = down, wasDrag = dragging; down = null; dragging = false;
+  if(!wasDown || e.target !== canvas) return;
+  canvas.style.cursor = 'grab';
+  if(wasDrag || e.button !== 0) return;
+  // click: select a part and bring it to the camera; click on empty space to deselect
+  const part = pick(e);
+  selPart = part && part !== 'body' ? part : null;
+  if(selPart) focusPart(selPart);
+});
+canvas.addEventListener('dblclick', ()=>{ selPart = null; view('front', 1); });   // double-click: reset the view
+canvas.addEventListener('pointerleave', ()=>{ hoverPart=null; tip.classList.remove('show'); });
+function focusPart(part){
+  const c = partCenter(part).clone(); rig.localToWorld(c);
+  const backSide = part==='paddles' || part==='qr' || part==='contact';
+  const dir = new THREE.Vector3(backSide ? .35 : -.2, .22, backSide ? -1 : 1).normalize().multiplyScalar(.5);
+  gsap.to(camera.position,{x:c.x+dir.x, y:c.y+dir.y, z:c.z+dir.z, duration:1, ease:'power3.inOut'});
+  gsap.to(controls.target,{x:c.x*.6, y:c.y*.6, z:c.z*.6, duration:1, ease:'power3.inOut'});
+}
+
+const clock = new THREE.Clock();
+gsap.fromTo(REG_U.uSweep, {value:-.24}, {value:.24, duration:2.6, ease:'sine.inOut', repeat:-1, repeatDelay:4.5, delay:3});   // light sweep
+(function loop(){
+  requestAnimationFrame(loop);
+  paint(clock.getElapsedTime());
+  controls.update();
+  // pass 1: emissive parts only -> bloom.  pass 2: full scene + gradient background, bloom, vignette, grain
+  mirrorRig.position.copy(rig.position); mirrorRig.quaternion.copy(rig.quaternion);
+  REG_U.uBloomOnly.value = 1; qr.visible = floor.visible = mirrorRoot.visible = false;
+  bloomComposer.render();
+  REG_U.uBloomOnly.value = 0; qr.visible = floor.visible = true; mirrorRoot.visible = camera.position.y > FLOOR_Y + .03;
+  renderer.shadowMap.needsUpdate = true;
+  finalPass.uniforms.uTime.value = clock.getElapsedTime();
+  composer.render();
+  placeCallouts();
+})();
+
+function hudState(){}   // the ring behind the model was removed; the panel shows progress
+
+/* =========================================================
+   PANEL helpers
+   ========================================================= */
+const pb = $('#pb'), pf = $('#pf');
+function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1800); }
+function render(body, foot=''){
+  pb.innerHTML = body; pf.innerHTML = foot; pb.scrollTop = 0;
+  gsap.from([...pb.children, ...pf.children], {y:8, opacity:0, duration:.45, stagger:.035, ease:'power3.out', clearProps:'transform,opacity'});
+}
+const phase = n => `<div class="phase">${['Diagnose','Repair'].map((t,i)=>`<div class="${i<n?'done':i===n?'cur':''}"><i></i><span>${i+1} · ${t}</span></div>`).join('')}</div>`;
+const IMG = t => `<div class="img"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg>Image: ${t}</div>`;
+const CHECK = `<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+function choose(container, onPick){
+  container.querySelectorAll('.ch').forEach(b=>b.onclick=()=>{
+    container.querySelectorAll('.ch').forEach(x=>x.classList.toggle('sel', x===b)); onPick(b.dataset.k);
+  });
+}
+function feedback(cls, html){ const f=$('#fb'); f.className='fb show '+cls; f.innerHTML=html; gsap.from(f,{y:6,opacity:0,duration:.3}); }
+let pending = [];
+function later(s, fn){ pending.push(gsap.delayedCall(s, fn)); }
+function resetScene(){ pending.splice(0).forEach(d=>d.kill()); cuePart=null; selPart=null; clearCallouts(); if(typeof beam==='function' && SCAN_U.uScanOn.value>0) beam(false); }
+
+/* =========================================================
+   TABS
+   ========================================================= */
+let currentState = ()=>{}, onStore = false;
+function setTab(v){
+  $$('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));
+  const b = $(`#tabs button[data-v="${v}"]`);
+  gsap.to('#ink',{left:b.offsetLeft, width:b.offsetWidth, duration:.35, ease:'power3.inOut'});
+  if(v==='store'){ onStore = true; store(); gsap.from([...pb.children, ...pf.children],{y:14,opacity:0,duration:.45,stagger:.04,ease:'power3.out',clearProps:'transform,opacity'}); }
+  else if(onStore){ onStore = false; currentState(); }
+}
+$$('#tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.v));
+requestAnimationFrame(()=>{ const b=$('#tabs button.on'); gsap.set('#ink',{left:b.offsetLeft,width:b.offsetWidth}); });
+const go = fn => (...a)=>{ currentState = ()=>fn(...a); if(onStore) setTab('flow'); else fn(...a); };
+
+/* =========================================================
+   FLOW — team poster logic: Start → 1 Signal → 2 Visual check (3 steps) → Result → 3 Fix
+   ========================================================= */
+let diagnosed = false;
+
+/* ---- Start ---- */
+const start = go(()=>{
+  resetScene(); view('front'); faultPart=null; fixedPart=null; diagnosed=false; hudState('idle');
+  render(`
+    <div class="hero">
+      <svg class="idle" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="t"/><circle cx="60" cy="60" r="44" class="b"/><path d="M38 60h10l5-12 9 24 5-12h15" class="w"/></svg>
+      <div class="h">Check your wheel in one click</div>
+      <div class="conn"><i></i>G923 connected</div>
+    </div>`,
+  `<button class="btn" id="go">Start diagnosis</button>`);
+  anime({targets:'.idle .w', strokeDashoffset:[anime.setDashoffset,0], duration:1400, easing:'easeInOutSine', delay:300});
+  anime({targets:'.idle .t', rotate:360, duration:24000, easing:'linear', loop:true});
+  $('#go').onclick = scan;
+});
+
+/* ---- 1 · Diagnose: scan ----
+   Rhythm: one GSAP timeline, a fixed 0.8 s beat per part.
+   Panel: anime.js ring + counter. Model: the part being read pulses blue while the camera orbits to the back. */
+const SCAN = [['Buttons','buttons'],['Shift paddles','paddles'],['Dials','dials'],['Rev light bar','leds'],['Quick release','contact']];
+const BEAT = .8;
+const scan = go(()=>{
+  resetScene();
+  const R = 34, CIRC = 2*Math.PI*R;
+  render(`
+    ${phase(0)}
+    <div class="scanhead">
+      <svg class="ring" viewBox="0 0 80 80"><circle cx="40" cy="40" r="${R}" class="bg"/><circle cx="40" cy="40" r="${R}" class="fg" id="arc" stroke-dasharray="${CIRC}" stroke-dashoffset="${CIRC}"/></svg>
+      <div class="num"><b id="pct">0</b><span>%</span></div>
+      <div><div class="h" id="stitle" style="margin:0">Reading signals</div><div class="eyebrow" id="ssub" style="margin-top:6px">Checked 0 / ${SCAN.length}</div></div>
+    </div>
+    <div class="rows" id="sig" style="margin-top:22px">
+      ${SCAN.map(([t])=>`<div class="st"><span class="ic wait"></span>${t}<em></em></div>`).join('')}
+    </div>`);
+  const total = SCAN.length*BEAT + .3;
+  const prog = {v:0};
+  anime({targets:prog, v:100, duration:total*1000, easing:'linear', update:()=>{
+    const a=$('#arc'), n=$('#pct'); if(!a) return;
+    a.setAttribute('stroke-dashoffset', CIRC*(1-prog.v/100)); n.textContent = Math.round(prog.v); hudState('progress', prog.v/100);
+  }});
+  // camera: smooth orbit from the front to the back of the wheel
+  const r0 = Math.hypot(camera.position.x, camera.position.z), a0 = Math.atan2(camera.position.x, camera.position.z);
+  const orb = {a:a0, r:r0, y:camera.position.y};
+  const back = VIEWS.back.p; let a1 = Math.atan2(back[0], back[2]); if(a1 < a0) a1 += Math.PI*2;
+  gsap.to(controls.target,{x:VIEWS.back.t[0],y:VIEWS.back.t[1],z:VIEWS.back.t[2],duration:total,ease:'sine.inOut'});
+  gsap.to(orb,{a:a1, r:Math.hypot(back[0],back[2]), y:back[1], duration:total, ease:'sine.inOut',
+    onUpdate:()=>camera.position.set(Math.sin(orb.a)*orb.r, orb.y, Math.cos(orb.a)*orb.r)});
+  const rows = $$('#sig .st'), tl = gsap.timeline();
+  pending.push(tl);
+  const box = new THREE.Box3().setFromObject(rig), top = box.max.y + .01, bot = box.min.y - .01;
+  const sweep = {y:top}; beamAt(top); beam(true);
+  tl.to(sweep,{y:bot, duration:total/2, ease:'sine.inOut', onUpdate:()=>beamAt(sweep.y)}, 0)
+    .to(sweep,{y:top, duration:total/2, ease:'sine.inOut', onUpdate:()=>beamAt(sweep.y)}, total/2)
+    .call(()=>beam(false), null, total);
+  SCAN.forEach(([t,part],i)=>{
+    const r = rows[i], ic = r.querySelector('.ic'), em = r.querySelector('em'), at = i*BEAT, last = i===SCAN.length-1;
+    tl.call(()=>{ ic.className='ic run'; cuePart = part; r.classList.add('now'); }, null, at);
+    tl.call(()=>{
+      r.classList.remove('now'); cuePart = null;
+      if(last){ ic.className='ic bad'; ic.textContent='!'; em.innerHTML='<span class="red">Poor contact</span>'; faultPart='contact';
+        $('#stitle').innerHTML = 'Found <span class="red">1</span> issue'; $('#arc').classList.add('bad'); hudState('fault'); }
+      else { ic.className='ic ok'; ic.textContent='✓'; em.textContent='Normal'; }
+      $('#ssub').textContent = `Checked ${i+1} / ${SCAN.length}`;
+      gsap.fromTo(ic,{scale:.6},{scale:1,duration:.35,ease:'back.out(3)'});
+    }, null, at + BEAT*.75);
+  });
+  tl.call(()=>result(), null, total + .7);
+});
+
+/* ---- Result: faulty part found ---- */
+const result = go(()=>{
+  resetScene(); diagnosed = true; diagnosedOnce = true; faultPart='contact'; fixedPart=null; view('back'); hudState('fault');
+  later(1.1, ()=>callout('contact','Quick-release contact ring · Poor contact','#ff4545',250,-185));
+  render(`
+    ${phase(0)}
+    <div class="eyebrow green">Faulty part found</div>
+    <div class="partcard"><span class="ring"><i></i></span><div><b>Quick-release contact ring</b><small>Back of the wheel · QR-C01</small></div><span class="tag">Poor contact</span></div>
+    <div class="sec">Results</div>
+    <div class="rows">
+      <div class="st"><span class="ic ok">✓</span>Buttons, shift paddles, dials<em>Normal</em></div>
+      <div class="st"><span class="ic ok">✓</span>Rev light bar<em>Normal</em></div>
+      <div class="st"><span class="ic bad">!</span>Quick release<em class="red">23 disconnects in 10 min</em></div>
+    </div>
+    <div class="sec">Repair</div>
+    <div class="rows">
+      <div class="row"><span>Repair method</span><span class="blue">Self-replaceable</span></div>
+      <div class="row"><span>Estimated time</span><span>About 5 min</span></div>
+      <div class="row"><span>Spare part</span><span>QR-C01 · € 12.90</span></div>
+    </div>`,
+  `<button class="btn" id="have">Start repair</button><button class="btn2" id="order">Order contact ring · € 12.90</button>`);
+  $('#order').onclick = ()=>{ cart.qr = 1; setTab('store'); toast('Added to cart'); };
+  $('#have').onclick = ()=>repair(0);
+});
+
+/* ---- 3 · Fix ---- */
+const BODY_OFF = .09;   // the whole wheel (incl. quick-release) slides forward = pulled off the base
+const STEPS = [
+  { t:'Disconnect power', d:'Unplug the power cable from the back of the base.', tools:['No tools needed'], img:'Back of the base · power port', v:'back', cue:null, co:null,
+    set(){}, play(){ return gsap.timeline(); }, ok:'Power is off.' },
+  { t:'Remove the wheel', d:'Hold the quick-release lock ring and pull the wheel straight out.', tools:['No tools needed'], img:'Hand holding the quick-release lock ring', v:'back', cue:'qr', co:['qr','Hold the lock ring, pull out'],
+    set(){ rig.position.z = BODY_OFF; }, play(){ return gsap.timeline().to(rig.position,{z:BODY_OFF,duration:1.2,ease:'power3.inOut'}); }, ok:'Wheel removed. Put it on a soft pad.' },
+  { t:'Remove the old contact ring', d:'Use the flat pry tool at the notch to gently lift the yellow contact ring, then take it off.', tools:['Flat pry tool'], img:'Notch position on the contact ring', v:'backNear', cue:'contact', co:['contact','Pry up at the notch'],
+    set(){ collar.position.z = -.04; collar.material.opacity = 0; },
+    play(){ return gsap.timeline().to(collar.position,{z:-.04,duration:1,ease:'power3.in'}).to(collar.material,{opacity:0,duration:.4},'-=.3'); },
+    ok:'Old contact ring removed.' },
+  { t:'Fit the new contact ring', d:'Line it up with the locating notch and press the new contact ring all the way in. A click means it is seated.', tools:['New contact ring QR-C01'], img:'Locating notch aligned', v:'backNear', cue:null, co:['contact','Align the notch, press in'],
+    set(){ collar.position.z = 0; collar.material.opacity = 1; fixedPart='contact'; },
+    play(){ fixedPart='contact'; return gsap.timeline().fromTo(collar.position,{z:-.04},{z:0,duration:1,ease:'bounce.out'}).fromTo(collar.material,{opacity:0},{opacity:1,duration:.4},0); },
+    ok:'New contact ring fitted.' },
+  { t:'Refit the wheel', d:'Line it up with the quick release and push in. The lock ring springs back; pull gently to check it holds.', tools:['No tools needed'], img:'Wheel pushed into the quick release', v:'back', cue:'qr', co:['qr','Push into the quick release'],
+    set(){ rig.position.z = 0; }, play(){ return gsap.timeline().to(rig.position,{z:0,duration:1.1,ease:'power3.inOut'}); }, ok:'Wheel refitted.' },
+  { t:'Power on and test', d:'Reconnect power and test the buttons in G HUB.', tools:['G HUB'], img:'G HUB button test screen', v:'front', cue:null, co:null, test:true,
+    set(){}, play(){
+      return gsap.timeline()
+        .to(rig.rotation,{z:.45,duration:.8,ease:'sine.inOut'}).call(()=>meter(0,6))
+        .to(rig.rotation,{z:-.45,duration:1.3,ease:'sine.inOut'}).call(()=>meter(6,12))
+        .to(rig.rotation,{z:0,duration:.8,ease:'sine.inOut'});
+    }, ok:'No disconnects through the full rotation.' },
+];
+function meter(a,b){ $$('#meter i').forEach((m,k)=>{ if(k>=a&&k<b) setTimeout(()=>{ m.classList.add('on'); m.style.height=(70+((k*37)%30))+'%'; },(k-a)*80); }); }
+function repairScene(i){
+  gsap.killTweensOf([rig.position, collar.position, collar.material, rig.rotation]);
+  rig.position.z = 0; collar.position.z = 0; collar.material.opacity = 1; rig.rotation.z = 0;
+  fixedPart = null; faultPart = 'contact';
+  for(let k=0;k<i;k++) STEPS[k].set();
+  if(fixedPart) faultPart = null;
+}
+let tl = null;
+const repair = go(i=>{
+  const s = STEPS[i]; resetScene(); if(tl) tl.kill();
+  repairScene(i); view(s.v, 1.2); hudState('idle');
+  render(`
+    ${phase(1)}
+    <div class="eyebrow">Repair · Step ${i+1} of ${STEPS.length}</div>
+    <div class="h">${s.t}</div>
+    <p class="desc">${s.d}</p>
+    <div class="tools">${s.tools.map(t=>`<span>${t}</span>`).join('')}</div>
+    ${IMG(s.img)}
+    ${s.test?`<div class="meter" id="meter">${'<i></i>'.repeat(12)}</div>`:''}
+    <div class="fb" id="fb"></div>`,
+  `<button class="btn" id="done">${CHECK}<span>${s.test?'Start test':'Step done'}</span></button>
+   <div class="note"><button id="replay">↻ Replay animation</button>${i>0?' · <button id="prev">Previous step</button>':''}</div>`);
+  later(1, ()=>{ cuePart = s.cue; if(s.co) callout(s.co[0], s.co[1], '#1199ff', 250, -185); });
+  if(!s.test) later(1.8, ()=>{ tl = s.play(); });
+  $('#replay').onclick = ()=>repair(i);
+  if($('#prev')) $('#prev').onclick = ()=>repair(i-1);
+  $('#done').onclick = e=>{
+    const b = e.currentTarget; if(b.classList.contains('ok') || b.disabled) return;
+    const finish = ()=>{
+      b.disabled = false; b.classList.add('ok'); b.querySelector('span').textContent = 'Done'; cuePart = null;
+      later(1, ()=> i===STEPS.length-1 ? done() : repair(i+1));
+    };
+    if(s.test){ b.disabled = true; b.querySelector('span').textContent = 'Testing…'; tl = s.play(); tl.eventCallback('onComplete', finish); }
+    else finish();
+  };
+});
+
+/* ---- Done ---- */
+const done = go(()=>{
+  resetScene(); faultPart=null; fixedPart='contact'; view('front'); hudState('fixed');
+  render(`
+    ${phase(2)}
+    <div class="yay">
+      <div class="badge" id="badge"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <div class="h" style="margin-top:20px">All fixed!</div>
+      <p class="desc">Your wheel is ready for the track again 🏁</p>
+    </div>
+    <div class="rows" style="margin-top:22px">
+      <div class="row"><span>Disconnects in the last 10 min</span><span class="green">0</span></div>
+      <div class="row"><span>Part replaced</span><span>Quick-release contact ring QR-C01</span></div>
+      <div class="row"><span>Time taken</span><span>6 min</span></div>
+    </div>`,
+  `<button class="btn" id="fin">Finish</button>`);
+  $('#fin').onclick = start;
+  celebrate();
+});
+function celebrate(){
+  // badge pops in, the check draws, confetti bursts out of it, the wheel does a little happy spin
+  anime({targets:'#badge', scale:[0,1], rotate:[-25,0], duration:900, delay:250, easing:'easeOutElastic(1, .55)'});
+  anime({targets:'#badge path', strokeDashoffset:[anime.setDashoffset,0], duration:450, delay:650, easing:'easeOutQuad'});
+  const host = $('.yay'), b = $('#badge'); if(!host || !b) return;
+  const COLS = ['#1199ff','#3ddc84','#ffb020','#ff4545','#b050ff','#ffffff'];
+  setTimeout(()=>{
+    for(let i=0;i<36;i++){
+      const c = document.createElement('i'); c.className = 'cf';
+      c.style.background = COLS[i%COLS.length];
+      if(i%3===0) c.style.borderRadius = '50%';
+      c.style.left = (b.offsetLeft + b.offsetWidth/2) + 'px'; c.style.top = (b.offsetTop + b.offsetHeight/2) + 'px';
+      host.appendChild(c);
+      const a = Math.random()*Math.PI*2, d = 70 + Math.random()*90;
+      anime({targets:c, translateX:Math.cos(a)*d, translateY:[0, Math.sin(a)*d*.8 + 60], rotate:anime.random(-360,360),
+        opacity:[{value:1,duration:50},{value:0,delay:700,duration:400}], duration:1300, easing:'easeOutCubic', complete:()=>c.remove()});
+    }
+  }, 600);
+  gsap.fromTo(rig.rotation,{y:0},{y:Math.PI*2, duration:1.6, delay:.5, ease:'power3.inOut'});
+}
+
+/* =========================================================
+   STORE
+   ========================================================= */
+const ITEMS = [
+  {id:'qr',  nm:'Quick-release contact ring', sku:'QR-C01', price:12.90, need:true},
+  {id:'pry', nm:'Flat pry tool', sku:'TOOL-PRY · Repair tool', price:3.90},
+];
+const cart = {};
+function store(){
+  const n = Object.keys(cart).length, total = Object.keys(cart).reduce((s,id)=>s+ITEMS.find(x=>x.id===id).price,0);
+  $('#cnt').textContent = n; $('#cnt').classList.toggle('show', n>0);
+  pb.innerHTML = `
+    <div class="eyebrow">${diagnosed?'Recommended for this diagnosis':'Common spare parts'}</div>
+    ${ITEMS.map(it=>`<div class="item"><span class="th"></span>
+      <div><div class="nm">${it.nm}${it.need&&diagnosed?'<span class="need">Needed now</span>':''}</div><small>${it.sku}</small></div>
+      <div class="pr">€ ${it.price.toFixed(2)}<div><button class="add ${cart[it.id]?'in':''}" data-id="${it.id}">${cart[it.id]?'✓ Added':'+ Add to cart'}</button></div></div></div>`).join('')}
+`;
+  pf.innerHTML = `<div class="row" style="border:0;padding-top:0"><span>Total · ${n} ${n===1?'item':'items'}</span><b style="font-size:18px">€ ${total.toFixed(2)}</b></div>
+    <button class="btn" id="pay" ${n?'':'disabled'}>Checkout</button>
+    ${diagnosed?'<div class="note"><button id="backflow">← Back to repair</button></div>':''}`;
+  $$('.add').forEach(b=>b.onclick=()=>{ const id=b.dataset.id, add=!cart[id]; add?cart[id]=1:delete cart[id]; store(); toast(add?'Added to cart':'Removed from cart'); });
+  $('#pay').onclick = ()=>toast('Prototype demo: checkout is not implemented yet');
+  if($('#backflow')) $('#backflow').onclick = ()=>setTab('flow');
+}
+
+ready.then(start);
+</script>
+</body>
+</html>
