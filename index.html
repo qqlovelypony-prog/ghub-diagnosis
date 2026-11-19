@@ -122,7 +122,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .yay{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:8px}
 .yay .badge{width:84px;height:84px;border-radius:50%;background:var(--green);display:grid;place-items:center;box-shadow:0 0 0 8px rgba(61,220,132,.15)}
 .yay .badge svg{width:42px;height:42px;fill:none;stroke:#06210f;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.yay .cf{position:absolute;width:7px;height:10px;border-radius:2px;margin:-5px 0 0 -3px;pointer-events:none}
+.yay .cf,.medal .cf{position:absolute;width:7px;height:10px;border-radius:2px;margin:-5px 0 0 -3px;pointer-events:none}
 /* status list */
 .st{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:var(--t-body)}
 .st .ic{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:11px;flex:none;font-weight:600}
@@ -132,8 +132,29 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .st .wait{border:1.5px solid var(--dim)}
 .st em{margin-left:auto;white-space:nowrap;padding-left:12px;font-style:normal;font-size:var(--t-cap);color:var(--sub)}
 @keyframes spin{to{transform:rotate(360deg)}}
+.st .na{border:1.5px dashed var(--dim)}
+/* wheel & base map: one cell per part of the model */
+.pmc{background:var(--field);border-radius:8px;padding:14px 16px;margin-top:10px}
+.pmc .t{display:flex;justify-content:space-between;align-items:baseline;font-size:var(--t-body);font-weight:500}
+.pmc .t span{font-size:var(--t-cap);color:var(--sub);font-weight:400}
+.cells{display:flex;gap:4px;margin-top:12px}
+.cell{flex:1;height:22px;border-radius:3px;background:#3a3c41;transition:background .3s,box-shadow .3s,transform .2s;cursor:pointer}
+.cell:hover{transform:translateY(-2px)}
+.cell.ok{background:#4c8f6b}.cell.bad{background:var(--red)}
+.cell.run{background:var(--blue);box-shadow:0 0 0 3px rgba(17,153,255,.22)}
+.cell.na{background:repeating-linear-gradient(-45deg,#3a3c41 0 3px,var(--field) 3px 6px)}
+.pmc .lbl{font-size:var(--t-cap);color:var(--sub);margin-top:9px;line-height:1.55}
+.pmleg{display:flex;gap:14px;font-size:11px;color:var(--dim);margin-top:12px}
+.pmleg span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;background:var(--c)}
+.pmtick{margin-top:14px;font-size:var(--t-body);line-height:1.9;color:var(--dim)}
+.pmtick .now{color:var(--blue)}
+.st.more{cursor:pointer}.st.more:hover em{color:#fff}
+.pmlist{font-size:var(--t-cap);color:var(--sub);line-height:1.7;padding:10px 0 12px 30px;border-bottom:1px solid var(--line);display:none}
+.pmlist.open{display:block}
 
 .img{height:168px;border-radius:6px;margin-top:16px;border:1px dashed #44474d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--dim);font-size:var(--t-cap);text-align:center;padding:10px}
+.pic{margin-top:16px;border-radius:6px;border:1px solid var(--line);padding:14px 12px;background:#0b0b0d}
+.pic img{display:block;width:100%;filter:invert(1) brightness(.92);mix-blend-mode:screen}
 .img svg{width:26px;height:26px;stroke:#55585e;fill:none;stroke-width:1.5}
 .tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
 .tools span{font-size:var(--t-cap);background:var(--field);color:var(--sub);padding:5px 9px;border-radius:4px}
@@ -160,6 +181,38 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 @keyframes draw{to{stroke-dashoffset:0}}
 .btn2{width:100%;height:48px;border-radius:6px;background:var(--field);display:flex;align-items:center;justify-content:center;font-size:var(--t-sec);margin-top:10px;transition:background .2s}
 .btn2:hover{background:var(--field-h)}
+/* medals: flat sticker medals, the unlock screen and the My garage tab */
+.btn.go{background:var(--green);color:#06210f}.btn.go:hover{background:#56e596}
+.btn.sub{background:var(--field);color:#fff;height:40px;font-weight:500;font-size:var(--t-body);margin-top:8px}.btn.sub:hover{background:var(--field-h)}
+.stk{display:block;overflow:visible}
+.stk .tx{font-family:Bahnschrift,"DIN Alternate","Arial Narrow",sans-serif;font-weight:700;font-stretch:75%}
+.medal{position:relative;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.medal .glow{position:relative;width:170px;height:170px;display:grid;place-items:center}
+.medal .glow:before{content:"";position:absolute;inset:-10px;border-radius:50%;background:radial-gradient(rgba(61,220,132,.2),transparent 68%)}
+.medal .tag{margin-top:14px;background:rgba(61,220,132,.12);color:var(--green);font-size:var(--t-cap);font-weight:500;padding:4px 10px;border-radius:12px}
+.medal .h{margin-top:10px}.medal .desc{margin-top:4px}
+.medal .wall{display:flex;align-items:center;gap:10px;margin-top:26px;font-size:var(--t-cap);color:var(--sub)}
+.medal .wall>span{display:flex;align-items:center;gap:4px}
+.medal .slot{width:28px;height:28px;display:grid;place-items:center}
+.medal .slot i{width:26px;height:26px;border-radius:50%;border:1.5px dashed var(--green)}
+.gstats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gstat{background:var(--field);border-radius:8px;padding:12px 14px}
+.gstat b{display:block;font-size:22px;font-weight:600;line-height:1.1}
+.gstat b small{font-size:14px;color:var(--dim)}
+.gstat span{font-size:var(--t-cap);color:var(--sub)}
+.gsec{font-size:var(--t-sec);font-weight:500;display:flex;justify-content:space-between;align-items:baseline;margin-top:24px}
+.gsec small{font-size:var(--t-cap);color:var(--sub);font-weight:400}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px;margin-top:14px}
+.mcell{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;color:var(--sub);text-align:center}
+.mcell.lock{color:var(--dim)}
+.mcell .pop{display:block;transition:transform .25s}
+.mcell:not(.lock):hover .pop{transform:translateY(-3px) scale(1.06)}
+.glog{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.glog .t{flex:1}.glog .t div:last-child{font-size:var(--t-cap);color:var(--sub);margin-top:2px}
+.glog .d{font-size:var(--t-cap);color:var(--dim)}
+.glog.fresh{animation:fresh 2.4s ease-out .4s both;border-radius:6px}
+.mcell.fresh{color:var(--green)}
+@keyframes fresh{0%{background:rgba(61,220,132,.16);box-shadow:-10px 0 0 rgba(61,220,132,.16),10px 0 0 rgba(61,220,132,.16)}100%{background:transparent;box-shadow:-10px 0 0 transparent,10px 0 0 transparent}}
 .note{text-align:center;margin-top:12px;font-size:var(--t-cap);color:var(--dim)}
 .note button{color:var(--blue);font-size:var(--t-cap)}
 .note button:hover{text-decoration:underline}
@@ -212,6 +265,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
     <div class="tabs" id="tabs">
       <button class="on" data-v="flow">Diagnose &amp; repair</button>
       <button data-v="store">Parts store<span class="cnt" id="cnt">0</span></button>
+      <button data-v="garage">My garage</button>
       <i class="ink" id="ink"></i>
     </div>
   </div>
@@ -224,8 +278,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
-<script src="assets/sim-wheel.js"></script>
-<script src="assets/sim-wheel-hi.js"></script>
+<script src="assets/wheel-base.js"></script>
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -241,7 +294,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
+import { toCreasedNormals, mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 
 /* =========================================================
@@ -258,7 +311,16 @@ const PARTS = {
   paddles: {n:'Shift paddles', z:'Back',           u:1, re:/^paddle/},
   grips:   {n:'Grips', z:'Sides',           u:1, re:/^(grip|spoke)_/},
   body:    {n:'Body panel', z:'Centre',           u:0, re:/^body$/},
+  housing: {n:'Base housing', z:'Base',            u:0, re:/^$/},
+  cover:   {n:'Top access cover', z:'Base · Top',  u:1, re:/^$/},
+  rear:    {n:'Rear panel', z:'Base · Back',       u:0, re:/^$/},
+  clamp:   {n:'Desk clamp', z:'Base · Bottom',     u:1, re:/^$/},
+  motors:  {n:'Force-feedback motors', z:'Base · Inside', u:0, re:/^$/},
+  mounts:  {n:'Motor mounts', z:'Base · Inside',   u:0, re:/^$/},
+  board:   {n:'Control board', z:'Base · Inside',  u:0, re:/^$/},
+  cables:  {n:'Motor cables', z:'Base · Inside',   u:0, re:/^$/},
 };
+const BASE_PARTS = new Set(['housing','cover','rear','clamp','motors','mounts','board','cables']);
 const partOf = n => Object.keys(PARTS).find(k => PARTS[k].re.test(n)) || 'body';
 
 /* =========================================================
@@ -270,7 +332,7 @@ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;   // applied in the final post pass (the scene is rendered to a float target first)
 renderer.toneMappingExposure = 1.0;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.VSMShadowMap; renderer.shadowMap.autoUpdate = false;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false;
 const scene = new THREE.Scene();
 scene.background = null;   // the gradient background is drawn in the final post pass, behind the model
 const pmrem = new THREE.PMREMGenerator(renderer);
@@ -282,25 +344,32 @@ const camera = new THREE.PerspectiveCamera(30, 1, .01, 20);
 scene.add(camera);
 function camLight(color, intensity, x, y, z){
   const l = new THREE.DirectionalLight(color, intensity);
-  l.position.set(x, y, z); l.target.position.set(0, 0, -.62);   // the wheel sits about 0.62 in front of the camera
+  l.position.set(x, y, z); l.target.position.set(0, 0, -.9);    // the model sits about 0.9 in front of the camera
   camera.add(l, l.target); return l;
 }
-camLight(0xffffff, 1.5, -.75, .8, .1);       // soft key, top left
-camLight(0xffffff, .35,  .9, .05, .1);       // weak fill, right
-camLight(0xdbe8ff, 3.4, -.9, .45, -1.5);     // rim from behind, cool white
-camLight(0xfff0de, 2.8,  .95, .3, -1.5);     // rim from behind, slightly warm
-scene.add(new THREE.HemisphereLight(0xffffff, 0x101114, .25));
+/* white model lighting: one strong key from the top left that casts shadows onto the model itself (buttons, ribs,
+   the hub and the plate edges throw small shadows, so the modelled structure reads), a low fill so the shadow
+   side stays grey instead of black, a top light for a soft top-to-bottom gradient, and two rims for the outline */
+const key = camLight(0xffffff, 3.0, -.8, .85, -.3);   // raking: grazes the wheel face so every edge and button throws a shadow
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -.0003; key.shadow.normalBias = .0012;
+Object.assign(key.shadow.camera, {left:-.24, right:.24, top:.24, bottom:-.24, near:.2, far:2.2});
+camLight(0xeef2ff, .3,   .9, -.1, .2);       // low fill, right
+camLight(0xffffff, .6,   0, 1, -.3);         // top light
+camLight(0xdbe8ff, 2.2, -.9, .45, -1.5);     // rim from behind, cool white
+camLight(0xfff0de, 1.8,  .95, .3, -1.5);     // rim from behind, slightly warm
+scene.add(new THREE.HemisphereLight(0xffffff, 0x0c0d10, .3));
 /* floor: shadow catcher + a faint mirror image; the shadow light is fixed in the world, straight above */
-const FLOOR_Y = -.108;
+const FLOOR_Y = -.102;            // bottom of the desk clamp
 const shadowLight = new THREE.DirectionalLight(0xffffff, .35);
 shadowLight.position.set(0, .6, .08); shadowLight.castShadow = true;
-shadowLight.shadow.mapSize.set(1024, 1024); shadowLight.shadow.radius = 9; shadowLight.shadow.blurSamples = 16; shadowLight.shadow.bias = -.0005;
-Object.assign(shadowLight.shadow.camera, {left:-.26, right:.26, top:.2, bottom:-.2, near:.2, far:1});
+shadowLight.shadow.mapSize.set(1024, 1024); shadowLight.shadow.bias = -.0005;
+Object.assign(shadowLight.shadow.camera, {left:-.26, right:.26, top:.24, bottom:-.24, near:.2, far:1});
 scene.add(shadowLight);
 const floor = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), new THREE.ShadowMaterial({opacity:.42}));
 floor.rotation.x = -Math.PI/2; floor.position.y = FLOOR_Y; floor.receiveShadow = true; scene.add(floor);
-const mirrorRoot = new THREE.Group(), mirrorRig = new THREE.Group();
-mirrorRoot.scale.y = -1; mirrorRoot.position.y = 2*FLOOR_Y; mirrorRoot.add(mirrorRig); scene.add(mirrorRoot);
+const mirrorRoot = new THREE.Group(); scene.add(mirrorRoot);   // faint mirror image; its meshes follow the model every frame
+const FLIP = new THREE.Matrix4().makeTranslation(0, 2*FLOOR_Y, 0).multiply(new THREE.Matrix4().makeScale(1, -1, 1));
 const PANEL_SHIFT = -276;   // panel is on the left now: push the model into the free area on the right
 const PR = Math.min(devicePixelRatio, 2);
 /* bloom only for the emissive parts: the scene is rendered once with everything black except the LEDs and the logo */
@@ -313,7 +382,7 @@ const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(4, 4, 
 const mainRender = new RenderPass(scene, camera); mainRender.clearColor = new THREE.Color(0); mainRender.clearAlpha = 0;
 const finalPass = new ShaderPass(new THREE.ShaderMaterial({
   uniforms:{ tDiffuse:{value:null}, tBloom:{value:bloomComposer.renderTarget2.texture}, uCenter:{value:new THREE.Vector2(.5,.5)},
-             uAspect:{value:1}, uTime:{value:0}, uExposure:{value:1.0} },
+             uAspect:{value:1}, uTime:{value:0}, uExposure:{value:.78} },
   vertexShader:'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
   fragmentShader:`uniform sampler2D tDiffuse; uniform sampler2D tBloom; uniform vec2 uCenter; uniform float uAspect; uniform float uTime; uniform float uExposure; varying vec2 vUv;
     vec3 rrtFit(vec3 v){ vec3 a = v * (v + 0.0245786) - 0.000090537; vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081; return a / b; }
@@ -350,34 +419,38 @@ addEventListener('resize', resize); resize();
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = .08; controls.rotateSpeed = .9;
 controls.enablePan = true; controls.screenSpacePanning = true; controls.panSpeed = .6;   // left-drag rotates, right-drag (or shift-drag) moves, wheel zooms
-controls.minDistance = .2; controls.maxDistance = 1.2; controls.zoomSpeed = .8;
+controls.minDistance = .22; controls.maxDistance = 1.6; controls.zoomSpeed = .8;
 controls.addEventListener('change', ()=>{ controls.target.clampScalar(-.12, .12); });
 
 const VIEWS = {
-  front:    {p:[-.19,.08,.64], t:[0,0,0]},
-  back:     {p:[.25,.1,-.58],  t:[0,.005,-.01]},
-  backNear: {p:[.27,.11,-.5],   t:[0,.005,-.02]},
+  front:    {p:[-.3,.16,.72],  t:[0,.005,0]},
+  back:     {p:[.58,.2,-.12],  t:[0,.02,.03]},     // side view onto the quick release (the base turns see-through)
+  backNear: {p:[.6,.22,.08],   t:[0,.035,.12]},
 };
 function view(n, d=1.4){
   const v = VIEWS[n];
+  xray(n !== 'front', d);
   gsap.to(camera.position,{x:v.p[0],y:v.p[1],z:v.p[2],duration:d,ease:'power3.inOut'});
   gsap.to(controls.target,{x:v.t[0],y:v.t[1],z:v.t[2],duration:d,ease:'power3.inOut'});
 }
-camera.position.set(-.3,.12,.8); controls.target.set(0,0,0);
+camera.position.set(-.5,.25,1.1); controls.target.set(0,0,0);
 
 /* light-beam scan: a bright band (plus a short afterglow) sweeps through the model in world space */
-const SCAN_U = { uScanY:{value:9}, uScanOn:{value:0} };
+const SCAN_U = { uScanY:{value:9}, uScanOn:{value:0}, uSweep:{value:-1} };
 function addScanBeam(m){
   m.onBeforeCompile = sh=>{
     Object.assign(sh.uniforms, SCAN_U);
     sh.vertexShader = 'varying vec3 vScanW;\n' + sh.vertexShader.replace('#include <project_vertex>',
       '#include <project_vertex>\n vScanW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-    sh.fragmentShader = 'uniform float uScanY; uniform float uScanOn; varying vec3 vScanW;\n' + sh.fragmentShader.replace('#include <emissivemap_fragment>',
+    sh.fragmentShader = 'uniform float uScanY; uniform float uScanOn; uniform float uSweep; varying vec3 vScanW;\n' + sh.fragmentShader.replace('#include <emissivemap_fragment>',
       `#include <emissivemap_fragment>
        float sd = min(abs(vScanW.y - uScanY), 1.0);          // clamp keeps exp() finite when the line is parked off-model
        float line = exp(-(sd*sd) / (0.0009*0.0009));           // a fine, crisp line
        float halo = exp(-(sd*sd) / (0.016*0.016));             // a wide, faint sheen around it
-       totalEmissiveRadiance += vec3(0.78, 0.88, 1.0) * (line * 0.9 + halo * 0.07) * uScanOn;`);
+       totalEmissiveRadiance += vec3(0.78, 0.88, 1.0) * (line * 0.9 + halo * 0.07) * uScanOn;
+       // slow light sweep: a soft diagonal sheen that crosses the model every few seconds (paused while scanning)
+       float sw = (dot(vScanW.xy, vec2(0.94, 0.34)) - uSweep) / 0.04;
+       totalEmissiveRadiance += vec3(1.0) * exp(-sw*sw) * 0.06 * (0.3 + 2.5 * dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722))) * (1.0 - uScanOn);`);
   };
   m.customProgramCacheKey = ()=>'scanbeam';
 }
@@ -396,148 +469,153 @@ sheet.rotation.x = -Math.PI/2;   // ring sheet not added: rejected as ugly
 function beam(on){ gsap.to([SCAN_U.uScanOn, sheetMat.uniforms.uOn], {value:on?1:0, duration:.35}); }
 function beamAt(y){ SCAN_U.uScanY.value = y; sheet.position.y = y; }
 
-/* model: the hi-res textured wheel is ONE mesh, so parts are regions (ellipsoids in wheel space) instead of separate meshes.
-   The quick-release assembly (flange, shaft, yellow contact ring) still comes from the team model and sits on its back. */
-const REG = [   // [part, centre, half-size]
-  ['dpad',    [-.058, .056, .030], [.020, .020, .012]],
-  ['buttons', [ .062, .050, .030], [.029, .029, .012]],
-  ['leds',    [-.003, .066, .027], [.037, .009, .010]],
-  ['hub',     [-.003, .010, .030], [.035, .035, .014]],
-  ['dials',   [-.036,-.052, .034], [.022, .022, .020]],
-  ['dials',   [ .034,-.052, .034], [.022, .022, .020]],
-  ['grips',   [-.118,-.012, .012], [.032, .082, .030]],
-  ['grips',   [ .118,-.012, .012], [.032, .082, .030]],
-  ['paddles', [-.092,-.012,-.030], [.034, .052, .013]],
-  ['paddles', [ .092,-.012,-.030], [.034, .052, .013]],
-];
-const REG_U = {
-  uRegC:{value:REG.map(r=>new THREE.Vector3(...r[1]))},
-  uRegH:{value:REG.map(r=>new THREE.Vector3(...r[2]))},
-  uRegE:{value:REG.map(()=>new THREE.Vector4())},     // rgb = highlight colour, a = strength
-  uDebug:{value: new URLSearchParams(location.search).has('regions') ? 1 : 0},
-  uBloomOnly:{value:0}, uSweep:{value:-1},
+/* model: the team's wheel + base (from "wheel and base model.stl", decimated and oriented offline).
+   Every part is its own mesh, named p<id>; the table below maps ids to a logical part and a material. */
+const MAT = {
+  leather: {color:0x222326, roughness:.8,  metalness:0},
+  chrome:  {color:0xd9dce1, roughness:.15, metalness:1},
+  plastic: {color:0x1b1c1f, roughness:.6,  metalness:0},
+  carbon:  {color:0x141518, roughness:.5,  metalness:.2},
+  panel:   {color:0x26272b, roughness:.5,  metalness:.1},
+  brushed: {color:0x4a4e55, roughness:.4,  metalness:1},
+  silver:  {color:0xb9bec6, roughness:.3,  metalness:1},
+  disc:    {color:0x121316, roughness:.45, metalness:.2},
+  led:     {color:0x2a2440, roughness:.4,  metalness:0, emissive:0xb48cff, emissiveIntensity:1.4, glow:0xb48cff},
+  dpad:    {color:0x2a2b2f, roughness:.45, metalness:0},
+  yellow:  {color:0xe0b21a, roughness:.35, metalness:0},
+  red:     {color:0xd8402f, roughness:.35, metalness:0},
+  green:   {color:0x3db35a, roughness:.35, metalness:0},
+  blue:    {color:0x2f6fe0, roughness:.35, metalness:0},
+  paddle:  {color:0x3a3d42, roughness:.35, metalness:.8},
+  qrhub:   {color:0x2b2d31, roughness:.4,  metalness:.7},
+  qrmetal: {color:0x6d7178, roughness:.3,  metalness:1},
+  ring:    {color:0xf2b51c, roughness:.35, metalness:.6},
+  shell:   {color:0x1a1b1e, roughness:.7,  metalness:0},
+  lid:     {color:0x232428, roughness:.55, metalness:0},
+  trim:    {color:0x5b5f66, roughness:.35, metalness:.8},
+  inner:   {color:0x4a4d52, roughness:.4,  metalness:.8},
 };
-function addWheelShader(m){
-  m.onBeforeCompile = sh=>{
-    Object.assign(sh.uniforms, SCAN_U, REG_U);
-    sh.vertexShader = 'varying vec3 vScanW; varying vec3 vLP; varying vec3 vLN;\n' + sh.vertexShader.replace('#include <project_vertex>',
-      '#include <project_vertex>\n vScanW = (modelMatrix * vec4(transformed, 1.0)).xyz; vLP = transformed; vLN = normal;');
-    sh.fragmentShader = `uniform float uScanY; uniform float uScanOn; uniform float uDebug; uniform float uBloomOnly; uniform float uSweep; varying vec3 vScanW; varying vec3 vLP; varying vec3 vLN;
-      float gLum, gBright, gDark, gHr, gChrome, gDial, gGrip; vec3 gGlow;
-      uniform vec3 uRegC[${REG.length}]; uniform vec3 uRegH[${REG.length}]; uniform vec4 uRegE[${REG.length}];
-      float backPlate(){ return step(vLP.z, 0.0125) * step(0.003, vLP.z) * step(vLN.z, -0.3) * step(abs(vLP.x), 0.095); }\n` + sh.fragmentShader
-      // the generated model has a copy of the front face printed on its back: paint that plate plain dark plastic
-      .replace('#include <map_fragment>', `#include <map_fragment>
-       diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.028), backPlate());
-       // the model is one textured mesh, so "materials" are picked per area from position + texture colour
-       gLum = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-       float mx = max(diffuseColor.r, max(diffuseColor.g, diffuseColor.b)), mn = min(diffuseColor.r, min(diffuseColor.g, diffuseColor.b));
-       float neutral = 1.0 - smoothstep(0.15, 0.35, (mx - mn) / max(mx, 0.001));
-       gBright = smoothstep(0.07, 0.2, gLum) * neutral;                    // silver / light grey texels
-       gDark = 1.0 - smoothstep(0.05, 0.14, gLum);                         // leather and the dark plate
-       gHr = length(vLP.xy - vec2(-0.003, 0.010));                         // distance from the hub centre
-       float front = step(0.018, vLP.z);
-       gGrip = step(0.088, abs(vLP.x));
-       float cap = step(0.07, abs(vLP.x)) * max(step(0.046, vLP.y), step(vLP.y, -0.060));   // chrome end caps
-       float ring = front * smoothstep(0.022, 0.025, gHr) * (1.0 - smoothstep(0.037, 0.040, gHr));   // hub ring
-       gChrome = gBright * max(cap, ring);
-       gDial = 1.0 - smoothstep(0.9, 1.0, min(length((vLP - uRegC[4]) / uRegH[4]), length((vLP - uRegC[5]) / uRegH[5])));
-       diffuseColor.rgb *= mix(1.0, 0.5, gDial * gBright);                // dials: darker brushed metal
-       float logo = front * (1.0 - smoothstep(0.017, 0.020, gHr)) * smoothstep(0.3, 0.55, gLum);
-       float led = (1.0 - smoothstep(0.85, 1.0, length((vLP - uRegC[2]) / uRegH[2]))) * smoothstep(0.25, 0.5, gLum);
-       gGlow = vec3(1.0) * logo * 0.5 + vec3(0.74, 0.58, 1.0) * led * 1.6;   // emissive: G logo + LED strip`)
-      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
-       roughnessFactor = mix(roughnessFactor, mix(0.6, 0.8, gGrip), gDark * step(0.04, gHr));   // plate 0.6, leather 0.8
-       roughnessFactor = mix(roughnessFactor, 0.35, gDial * gBright);
-       roughnessFactor = mix(roughnessFactor, 0.15, gChrome);
-       roughnessFactor = mix(roughnessFactor, 0.62, backPlate());`)
-      .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
-       metalnessFactor = mix(metalnessFactor, 0.0, gDark * step(0.04, gHr));
-       metalnessFactor = mix(metalnessFactor, 1.0, max(gDial * gBright, gChrome));
-       metalnessFactor = mix(metalnessFactor, 0.0, backPlate());`)
-      .replace('#include <opaque_fragment>', '#include <opaque_fragment>\n if(uBloomOnly > 0.5) gl_FragColor = vec4(gGlow, 1.0);')
-      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-       float sd = min(abs(vScanW.y - uScanY), 1.0);          // clamp keeps exp() finite when the line is parked off-model
-       float line = exp(-(sd*sd) / (0.0009*0.0009));           // a fine, crisp line
-       float halo = exp(-(sd*sd) / (0.016*0.016));             // a wide, faint sheen around it
-       totalEmissiveRadiance += vec3(0.78, 0.88, 1.0) * (line * 0.9 + halo * 0.07) * uScanOn;
-       totalEmissiveRadiance += gGlow;
-       // slow light sweep: a soft diagonal sheen that crosses the wheel every few seconds (paused while scanning)
-       float sw = (dot(vScanW.xy, vec2(0.94, 0.34)) - uSweep) / 0.04;
-       totalEmissiveRadiance += vec3(1.0) * exp(-sw*sw) * 0.07 * (0.3 + 2.5 * gLum) * (1.0 - uScanOn);
-       float lum = dot(diffuseColor.rgb, vec3(0.3333));
-       for(int i = 0; i < ${REG.length}; i++){
-         float k = 1.0 - smoothstep(0.82, 1.0, length((vLP - uRegC[i]) / uRegH[i]));
-         totalEmissiveRadiance += uRegE[i].rgb * uRegE[i].a * k * (0.45 + 1.6 * lum);
-         totalEmissiveRadiance += uDebug * k * vec3(fract(float(i) * 0.37), fract(float(i) * 0.71 + 0.3), 0.6) * 0.5;
-       }`);
-  };
-  m.customProgramCacheKey = ()=>'wheel-hi';
+const MAP = {   // id: [part, material]   (anything not listed belongs to the base)
+  2:['grips','leather'], 131:['grips','leather'], 4:['grips','chrome'], 130:['grips','chrome'], 5:['grips','chrome'], 133:['grips','chrome'],
+  8:['body','plastic'], 6:['body','carbon'], 10:['body','panel'], 82:['body','panel'], 42:['body','silver'], 103:['body','silver'], 28:['body','panel'], 120:['body','panel'],
+  '8L':['dials','brushed'], '8R':['dials','brushed'], 12:['dials','silver'], 129:['dials','silver'], 11:['dials','silver'], 132:['dials','silver'],
+  67:['hub','chrome'], 71:['hub','disc'], 68:['leds','led'],
+  93:['dpad','dpad'], 92:['dpad','plastic'],
+  36:['buttons','yellow'], 64:['buttons','red'], 37:['buttons','green'], 26:['buttons','blue'],
+  7:['paddles','paddle'], 81:['paddles','paddle'],
+  66:['qr','qrhub'], 65:['qr','qrmetal'], 72:['qr','qrmetal'], 63:['contact','ring'],
+  0:['housing','shell'], 1:['housing','shell'], 100:['housing','shell'], 41:['cover','lid'], 24:['cover','trim'], 9:['cover','trim'], 40:['rear','lid'], 3:['clamp','plastic'],
+  22:['motors','inner'], 91:['motors','inner'], 13:['mounts','inner'], 80:['mounts','inner'],
+  70:['board','inner'], 69:['board','inner'], 73:['board','inner'], 74:['board','inner'], 75:['board','inner'], 76:['board','inner'], 79:['board','inner'],
+  77:['cables','inner'], 78:['cables','inner'],
+};   // the remaining small pieces are the motors' cooling fins
+const WHEEL_AXIS = new THREE.Vector3(-.021, .409, .912).normalize();   // the wheel is tilted back 24 degrees
+const meshes = [];                    // every mesh that can be hovered / highlighted
+const product = new THREE.Group();    // wheel + base (spins as one in the celebration)
+const base = new THREE.Group();       // static base
+const axisFrame = new THREE.Group();  // sits on the wheel hub, z = wheel axis
+const rig = new THREE.Group();        // the wheel incl. quick release: slides along the axis, steers around it
+const body = new THREE.Group();       // wheel parts
+const qr = new THREE.Group();         // quick-release hub, flange, shaft + contact ring
+let collar = null;
+rig.add(body, qr); axisFrame.add(rig); product.add(base, axisFrame); scene.add(product);
+const baseMats = [], mirrors = [];
+const BLACK = new THREE.MeshBasicMaterial({color:0x000000});
+const mirrorMat = new THREE.MeshStandardMaterial({color:0xbfc1c4, roughness:.5, metalness:0, transparent:true, opacity:.07, depthWrite:false});
+mirrorMat.onBeforeCompile = sh=>{
+  sh.vertexShader = 'varying float vWy;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n vWy = (modelMatrix * vec4(transformed, 1.0)).y;');
+  sh.fragmentShader = 'varying float vWy;\n' + sh.fragmentShader.replace('#include <opaque_fragment>', `#include <opaque_fragment>\n gl_FragColor.a *= smoothstep(${(FLOOR_Y-.09).toFixed(3)}, ${FLOOR_Y.toFixed(3)}, vWy) * step(vWy, ${FLOOR_Y.toFixed(3)});`);
+};
+/* white model: one clay material for every solid part. The base housing (shell, lid, trim, foot) is frosted
+   see-through, so the motor, gears, shaft and contact ring inside it stay visible. */
+const GLASS = new Set(['shell','lid','trim']);
+const SHELL_OPACITY = .2;
+function makeMat(key){
+  const m = new THREE.MeshStandardMaterial({color:0xb4b5b6, roughness:.62, metalness:0});
+  m.envMapIntensity = .3;
+  if(GLASS.has(key)){
+    // frosted shell: faint face-on, brighter where the surface turns away (fresnel), so its outline stays readable
+    Object.assign(m, {transparent:true, opacity:SHELL_OPACITY, depthWrite:false, side:THREE.DoubleSide, roughness:.3});
+    m.userData.glass = true;
+    addScanBeam(m);
+    const withScan = m.onBeforeCompile;
+    m.onBeforeCompile = sh=>{
+      withScan(sh);
+      sh.fragmentShader = sh.fragmentShader.replace('#include <opaque_fragment>', `#include <opaque_fragment>
+        float fres = pow(1.0 - abs(dot(normalize(vViewPosition), normal)), 2.5);
+        gl_FragColor.a = clamp(gl_FragColor.a + fres * 0.55 * (gl_FragColor.a / ${SHELL_OPACITY.toFixed(2)}), 0.0, 1.0);`);
+    };
+    m.customProgramCacheKey = ()=>'scanbeam-glass';
+    return m;
+  }
+  addScanBeam(m); return m;
 }
-
-const meshes = [];                    // quick-release meshes only (flange, shaft, contact ring)
-const rig = new THREE.Group();        // whole wheel
-const body = new THREE.Group();       // the textured wheel
-const qr = new THREE.Group();         // flange + shaft + contact ring
-let collar = null, wheelMesh = null;
-rig.add(body, qr); scene.add(rig);
+function bakeGeometry(o, toLocal){
+  // quantised uint16 positions -> float positions in the frame they will live in, then smooth/crease normals
+  const a = o.geometry.attributes.position, arr = new Float32Array(a.count*3), v = new THREE.Vector3();
+  // (normals are worked out at 1000x scale: toCreasedNormals merges vertices on a 0.01 grid, far too coarse for a 0.3-unit model)
+  for(let i=0;i<a.count;i++){ v.fromBufferAttribute(a,i).applyMatrix4(o.matrixWorld); if(toLocal) v.applyMatrix4(toLocal); arr[i*3]=v.x*1000; arr[i*3+1]=v.y*1000; arr[i*3+2]=v.z*1000; }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(arr, 3)); g.setIndex(o.geometry.index);
+  return toCreasedNormals(g, Math.PI/6).scale(.001, .001, .001);
+}
 let modelReady, ready = new Promise(r=>modelReady=r);
 const b64buf = t => { const bin = atob(t), u8 = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i); return u8.buffer; };
-const parseGlb = t => new Promise((res, rej)=>new GLTFLoader().parse(b64buf(t), '', res, rej));
-Promise.all([parseGlb(window.SIM_WHEEL_HI), parseGlb(window.SIM_WHEEL_GLB)]).then(([hi, team])=>{
-  // 1 — textured wheel (already centred, upright and scaled to the team model's size when it was exported)
-  hi.scene.traverse(o=>{ if(o.isMesh) wheelMesh = o; });
-  const wm = wheelMesh.material;
-  wm.envMapIntensity = 1.25; if(wm.map) wm.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
-  addWheelShader(wm);
-  body.add(wheelMesh);
-  wheelMesh.castShadow = true;
-  // faint mirror image under the floor (same geometry, unlit, fades out with depth)
-  const mm = new THREE.MeshBasicMaterial({map:wm.map, color:0x8a8f99, transparent:true, opacity:.09, depthWrite:false});
-  mm.onBeforeCompile = sh=>{
-    sh.vertexShader = 'varying float vWy;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n vWy = (modelMatrix * vec4(transformed, 1.0)).y;');
-    sh.fragmentShader = 'varying float vWy;\n' + sh.fragmentShader.replace('#include <opaque_fragment>', `#include <opaque_fragment>\n gl_FragColor.a *= smoothstep(${(FLOOR_Y-.11).toFixed(3)}, ${FLOOR_Y.toFixed(3)}, vWy) * step(vWy, ${FLOOR_Y.toFixed(3)});`);
-  };
-  mirrorRig.add(new THREE.Mesh(wheelMesh.geometry, mm));
-  // 2 — quick-release assembly from the team model, placed on the back plate
-  const list = [];
-  team.scene.traverse(o=>{ if(o.isMesh && /^qr_/.test(o.name)) list.push(o); });
-  const c = new THREE.Box3().setFromObject(team.scene).getCenter(new THREE.Vector3());
-  list.forEach(o=>{
-    o.geometry = toCreasedNormals(o.geometry, Math.PI/5);
-    o.geometry.translate(-c.x, -c.y - .001, -c.z + .003);
-    const m = o.material.clone();
-    m.color.convertSRGBToLinear();
-    if(o.name !== 'qr_collar'){ m.color.multiplyScalar(.4); m.roughness = .58; m.metalness = .25; }   // match the wheel's dark metal
-    addScanBeam(m);
-    m.transparent = o.name === 'qr_collar';   // only the contact ring fades in the repair animation
-    o.material = m;
-    o.userData.part = partOf(o.name);
-    o.userData.e0 = m.emissive.clone(); o.userData.i0 = m.emissiveIntensity;
-    o.castShadow = true;
-    qr.add(o);
-    if(o.name==='qr_collar') collar = o;
-    meshes.push(o);
+new GLTFLoader().parse(b64buf(window.WHEEL_BASE_GLB), '', gltf=>{
+  gltf.scene.updateMatrixWorld(true);
+  const src = []; gltf.scene.traverse(o=>{ if(o.isMesh) src.push(o); });
+  // the wheel axis frame sits on the centre of the hub disc
+  const hub = src.find(o=>o.name==='p71'), hb = new THREE.Box3().setFromObject(hub);
+  axisFrame.position.copy(hb.getCenter(new THREE.Vector3()));
+  axisFrame.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), WHEEL_AXIS);
+  axisFrame.updateMatrixWorld(true);
+  const toAxis = axisFrame.matrixWorld.clone().invert();
+  const baseGeo = {};
+  src.forEach(o=>{
+    const id = o.name.slice(1), [part, mk] = MAP[id] || ['motors','inner'];
+    if(BASE_PARTS.has(part)){ const k = part+'|'+mk; (baseGeo[k] = baseGeo[k] || []).push(bakeGeometry(o)); return; }
+    const m = new THREE.Mesh(bakeGeometry(o, toAxis), makeMat(mk));
+    m.name = o.name; m.castShadow = m.receiveShadow = true;
+    m.userData.part = part; m.userData.e0 = m.material.emissive.clone(); m.userData.i0 = m.material.emissiveIntensity;
+    m.userData.bloom = BLACK;   // white model: nothing glows
+    if(part === 'contact'){ m.material.transparent = true; collar = m; }   // only the contact ring fades in the repair animation
+    (part === 'qr' || part === 'contact' ? qr : body).add(m);
+    meshes.push(m);
   });
+  // the base never highlights on its own, so its parts are merged per material (fewer draw calls)
+  Object.entries(baseGeo).forEach(([k, list])=>{
+    const [part, mk] = k.split('|');
+    const geo = mergeGeometries(list.map(g=>{ g.deleteAttribute('uv'); return g; }));
+    const mat = makeMat(mk); if(mat.userData.glass) baseMats.push(mat);
+    const m = new THREE.Mesh(geo, mat); m.castShadow = m.receiveShadow = !mat.userData.glass; m.renderOrder = mat.userData.glass ? 2 : 0;
+    m.userData.part = part; m.userData.glass = !!mat.userData.glass; m.userData.e0 = mat.emissive.clone(); m.userData.i0 = mat.emissiveIntensity; m.userData.bloom = BLACK;
+    base.add(m); meshes.push(m);
+  });
+  // mirror copies share the geometry, follow the source mesh every frame
+  meshes.forEach(src=>{ const c = new THREE.Mesh(src.geometry, mirrorMat); c.matrixAutoUpdate = false; c.userData.src = src; mirrorRoot.add(c); mirrors.push(c); });
   $('#loading').remove();
   view('front', 1.8);
-  gsap.from(rig.rotation,{y:-.5,duration:1.8,ease:'power3.out'});
+  gsap.from(product.rotation,{y:-.5,duration:1.8,ease:'power3.out'});
   modelReady();
-});
+}, err=>{ $('#loading').textContent = 'Model failed to load'; console.error(err); });
+/* x-ray: the base turns see-through when the camera needs to look at the quick release inside it */
+const XR = {v:SHELL_OPACITY};
+function xray(on, d=1){
+  gsap.to(XR, {v:on ? .07 : SHELL_OPACITY, duration:d*.8, ease:'power2.inOut', onUpdate:()=>baseMats.forEach(m=>{ m.opacity = XR.v; })});
+}
 const partCenter = part => {
   const b = new THREE.Box3();
   meshes.filter(o=>o.userData.part===part).forEach(o=>{ o.geometry.computeBoundingBox(); b.union(o.geometry.boundingBox); });
-  if(!b.isEmpty()){ const c = b.getCenter(new THREE.Vector3()); c.y = b.max.y; return c; }   // anchor on the top edge of the ring
-  const rs = REG.filter(r=>r[0]===part);
-  if(!rs.length) return new THREE.Vector3(0, .04, .028);
-  const r = rs[rs.length-1];           // right-hand one when a part has two (callouts point to the right)
-  return new THREE.Vector3(r[1][0], r[1][1], r[1][2]);
+  if(b.isEmpty()) return new THREE.Vector3();
+  const c = b.getCenter(new THREE.Vector3()); c.y = b.max.y;   // anchor on the top edge so the dot sits on the part, not inside it
+  return c;   // in the wheel axis frame (before rig offsets)
 };
 
 /* highlight states: hover / selected (blue), cue (blue pulse), fault (red pulse), fixed (green) */
 let hoverPart = null, selPart = null, cuePart = null, faultPart = null, fixedPart = null;
+const okParts = new Set(), OKG = {v:0};   // power-on test: parts confirmed good glow green (strength OKG.v)
 const C = {blue:new THREE.Color(0x1199ff), red:new THREE.Color(0xff2a2a), green:new THREE.Color(0x3ddc84)};
 function stateOf(p, pulse){
+  if(okParts.has(p) && OKG.v > .001) return [C.green, OKG.v];
   if(p===faultPart) return [C.red, .25 + .55*pulse];
   if(p===fixedPart) return [C.green, .35];
   if(p===cuePart)   return [C.blue, .1 + .3*pulse];
@@ -551,10 +629,6 @@ function paint(t){
     const st = stateOf(o.userData.part, pulse), m = o.material;
     if(st){ m.emissive.copy(st[0]); m.emissiveIntensity = st[1]; }
     else { m.emissive.copy(o.userData.e0); m.emissiveIntensity = o.userData.i0; }
-  });
-  REG.forEach((r,i)=>{
-    const st = stateOf(r[0], pulse), e = REG_U.uRegE.value[i];
-    if(st) e.set(st[0].r, st[0].g, st[0].b, st[1]); else e.w = 0;
   });
 }
 
@@ -589,29 +663,20 @@ function placeCallouts(){
    ========================================================= */
 const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(), tip = $('#tip');
 let diagnosedOnce = false;
-const PLATE = new THREE.Box3(new THREE.Vector3(-.088,-.062,.007), new THREE.Vector3(.088,.082,.027));
-const _inv = new THREE.Matrix4(), _lr = new THREE.Ray(), _hit = new THREE.Vector3();
 function pick(e){
   mouse.x = e.clientX/innerWidth*2-1; mouse.y = -(e.clientY/innerHeight)*2+1;
   ray.setFromCamera(mouse, camera);
-  // analytic picking in wheel space: ellipsoid regions, the plate box, then the quick-release meshes — nearest wins
-  _lr.copy(ray.ray).applyMatrix4(_inv.copy(rig.matrixWorld).invert());
-  const o = _lr.origin, d = _lr.direction; let best = null, bt = Infinity;
-  REG.forEach(([part,c,h])=>{
-    const ox=(o.x-c[0])/h[0], oy=(o.y-c[1])/h[1], oz=(o.z-c[2])/h[2], dx=d.x/h[0], dy=d.y/h[1], dz=d.z/h[2];
-    const A=dx*dx+dy*dy+dz*dz, B=ox*dx+oy*dy+oz*dz, D=B*B-A*(ox*ox+oy*oy+oz*oz-1);
-    if(D<0) return; const t=(-B-Math.sqrt(D))/A; if(t>0 && t<bt){ bt=t; best=part; }
-  });
-  if(_lr.intersectBox(PLATE, _hit)){ const t=_hit.distanceTo(o); if(t<bt-.004){ bt=t; best='body'; } }
-  const hit = ray.intersectObjects(meshes.filter(m=>m.material.opacity>.3), false)[0];
-  if(hit && hit.distance<bt) best = hit.object.userData.part;
-  return best;
+  // the base housing is see-through: parts inside it win, the housing itself answers only where nothing is behind it
+  const hits = ray.intersectObjects(meshes.filter(m=>m.visible && (m.userData.glass || m.material.opacity>.3)), false);
+  const solid = hits.find(h=>!h.object.userData.glass), glass = hits.find(h=>h.object.userData.glass);
+  return (solid || glass) ? (solid || glass).object.userData.part : null;
 }
 function showTip(part, e){
   const p = PARTS[part];
   const st = part===faultPart ? ['● Poor contact','var(--red)']
            : part===fixedPart ? ['● Replaced','var(--green)']
-           : diagnosedOnce ? ['● Normal','var(--green)'] : ['Not checked','var(--dim)'];
+           : !diagnosedOnce ? ['Not checked','var(--dim)']
+           : !READABLE.has(part) ? ['No signal · check visually','var(--dim)'] : ['● Normal','var(--green)'];
   tip.innerHTML = `<b>${p.n}</b>
     <div class="r"><span>Location</span><span>${p.z}</span></div>
     <div class="r"><span>Repair method</span><span style="color:${p.u?'var(--blue)':'var(--sub)'}">${p.u?'Self-replaceable':'Service centre'}</span></div>
@@ -648,16 +713,19 @@ function focusPart(part){
 }
 
 const clock = new THREE.Clock();
-gsap.fromTo(REG_U.uSweep, {value:-.24}, {value:.24, duration:2.6, ease:'sine.inOut', repeat:-1, repeatDelay:4.5, delay:3});   // light sweep
+gsap.fromTo(SCAN_U.uSweep, {value:-.3}, {value:.3, duration:2.8, ease:'sine.inOut', repeat:-1, repeatDelay:4.5, delay:3});   // light sweep
 (function loop(){
   requestAnimationFrame(loop);
   paint(clock.getElapsedTime());
   controls.update();
   // pass 1: emissive parts only -> bloom.  pass 2: full scene + gradient background, bloom, vignette, grain
-  mirrorRig.position.copy(rig.position); mirrorRig.quaternion.copy(rig.quaternion);
-  REG_U.uBloomOnly.value = 1; qr.visible = floor.visible = mirrorRoot.visible = false;
+  product.updateMatrixWorld(true);
+  mirrors.forEach(c=>{ c.matrix.multiplyMatrices(FLIP, c.userData.src.matrixWorld); c.visible = c.userData.src.visible; });
+  floor.visible = mirrorRoot.visible = false;
+  meshes.forEach(o=>{ o.userData.mat = o.material; o.material = o.userData.bloom; });   // only the LEDs stay lit
   bloomComposer.render();
-  REG_U.uBloomOnly.value = 0; qr.visible = floor.visible = true; mirrorRoot.visible = camera.position.y > FLOOR_Y + .03;
+  meshes.forEach(o=>{ o.material = o.userData.mat; });
+  floor.visible = true; mirrorRoot.visible = camera.position.y > FLOOR_Y + .03;
   renderer.shadowMap.needsUpdate = true;
   finalPass.uniforms.uTime.value = clock.getElapsedTime();
   composer.render();
@@ -676,6 +744,7 @@ function render(body, foot=''){
   gsap.from([...pb.children, ...pf.children], {y:8, opacity:0, duration:.45, stagger:.035, ease:'power3.out', clearProps:'transform,opacity'});
 }
 const phase = n => `<div class="phase">${['Diagnose','Repair'].map((t,i)=>`<div class="${i<n?'done':i===n?'cur':''}"><i></i><span>${i+1} · ${t}</span></div>`).join('')}</div>`;
+const PIC = (src, alt) => `<div class="pic"><img src="${src}" alt="${alt}"></div>`;
 const IMG = t => `<div class="img"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg>Image: ${t}</div>`;
 const CHECK = `<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
 function choose(container, onPick){
@@ -686,7 +755,7 @@ function choose(container, onPick){
 function feedback(cls, html){ const f=$('#fb'); f.className='fb show '+cls; f.innerHTML=html; gsap.from(f,{y:6,opacity:0,duration:.3}); }
 let pending = [];
 function later(s, fn){ pending.push(gsap.delayedCall(s, fn)); }
-function resetScene(){ pending.splice(0).forEach(d=>d.kill()); cuePart=null; selPart=null; clearCallouts(); if(typeof beam==='function' && SCAN_U.uScanOn.value>0) beam(false); }
+function resetScene(){ pending.splice(0).forEach(d=>d.kill()); cuePart=null; selPart=null; okParts.clear(); OKG.v=0; clearCallouts(); if(typeof beam==='function' && SCAN_U.uScanOn.value>0) beam(false); }
 
 /* =========================================================
    TABS
@@ -696,7 +765,7 @@ function setTab(v){
   $$('#tabs button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));
   const b = $(`#tabs button[data-v="${v}"]`);
   gsap.to('#ink',{left:b.offsetLeft, width:b.offsetWidth, duration:.35, ease:'power3.inOut'});
-  if(v==='store'){ onStore = true; store(); gsap.from([...pb.children, ...pf.children],{y:14,opacity:0,duration:.45,stagger:.04,ease:'power3.out',clearProps:'transform,opacity'}); }
+  if(v==='store' || v==='garage'){ onStore = true; (v==='store' ? store : garage)(); gsap.from([...pb.children, ...pf.children],{y:14,opacity:0,duration:.45,stagger:.04,ease:'power3.out',clearProps:'transform,opacity'}); }
   else if(onStore){ onStore = false; currentState(); }
 }
 $$('#tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.v));
@@ -726,8 +795,32 @@ const start = go(()=>{
 /* ---- 1 · Diagnose: scan ----
    Rhythm: one GSAP timeline, a fixed 0.8 s beat per part.
    Panel: anime.js ring + counter. Model: the part being read pulses blue while the camera orbits to the back. */
-const SCAN = [['Buttons','buttons'],['Shift paddles','paddles'],['Dials','dials'],['Rev light bar','leds'],['Quick release','contact']];
-const BEAT = .8;
+/* every part of the 3D model, by where it sits. 'read' parts send a signal and get checked; the others are
+   mechanical (no signal) and are shown hatched as "check visually". Names = the hover names in PARTS. */
+const PMAP = {
+  wheel:{n:'Wheel', read:['buttons','dpad','dials','paddles','leds','contact'], vis:['qr','hub','grips','body']},
+  base: {n:'Base',  read:['motors','cables','board'], vis:['mounts','housing','cover','rear','clamp']},
+};
+const SCAN = ['buttons','dpad','dials','paddles','leds','motors','cables','board','contact'].map(k=>[PARTS[k].n, k]);   // contact ring is read last
+const READABLE = new Set(SCAN.map(s=>s[1]));
+const BEAT = .6;
+function pmCard(k, mode){
+  const g = PMAP[k], st = p => mode==='res' ? (p===faultPart ? 'bad' : 'ok') : 'wait';
+  const bad = mode==='res' ? g.read.filter(p=>p===faultPart).length : 0;
+  const right = mode==='res' ? `${bad?`<b class="red" style="font-weight:400">${bad} issue</b> · `:''}${g.read.length-bad} / ${g.read.length} normal`
+                             : `${g.read.length} parts read · ${g.vis.length} structural`;
+  return `<div class="pmc"><div class="t">${g.n}<span>${right}</span></div>
+    <div class="cells">${g.read.map(p=>`<i class="cell ${st(p)}" data-p="${p}"></i>`).join('')}${g.vis.map(p=>`<i class="cell na" data-p="${p}"></i>`).join('')}</div>
+    ${mode==='res' ? '' : `<div class="lbl">${g.read.map(p=>PARTS[p].n).join(' · ')}</div>`}</div>`;
+}
+// hovering a cell = hovering that part on the model (blue highlight + the same tooltip)
+function pmHover(){
+  $$('#pb .cell').forEach(c=>{
+    c.onmouseenter = e=>{ hoverPart = c.dataset.p; showTip(c.dataset.p, e); };
+    c.onmousemove  = e=>showTip(c.dataset.p, e);
+    c.onmouseleave = ()=>{ hoverPart = null; tip.classList.remove('show'); };
+  });
+}
 const scan = go(()=>{
   resetScene();
   const R = 34, CIRC = 2*Math.PI*R;
@@ -738,9 +831,10 @@ const scan = go(()=>{
       <div class="num"><b id="pct">0</b><span>%</span></div>
       <div><div class="h" id="stitle" style="margin:0">Reading signals</div><div class="eyebrow" id="ssub" style="margin-top:6px">Checked 0 / ${SCAN.length}</div></div>
     </div>
-    <div class="rows" id="sig" style="margin-top:22px">
-      ${SCAN.map(([t])=>`<div class="st"><span class="ic wait"></span>${t}<em></em></div>`).join('')}
-    </div>`);
+    <div style="margin-top:12px">${pmCard('wheel')}${pmCard('base')}</div>
+    <div class="pmleg"><span style="--c:#4c8f6b">Normal</span><span style="--c:var(--blue)">Reading</span><span style="--c:#3a3c41">Waiting</span><span style="--c:repeating-linear-gradient(-45deg,#55585e 0 2px,transparent 2px 4px)">Not readable</span></div>
+    <div class="pmtick" id="tick"></div>`);
+  pmHover();
   const total = SCAN.length*BEAT + .3;
   const prog = {v:0};
   anime({targets:prog, v:100, duration:total*1000, easing:'linear', update:()=>{
@@ -754,23 +848,27 @@ const scan = go(()=>{
   gsap.to(controls.target,{x:VIEWS.back.t[0],y:VIEWS.back.t[1],z:VIEWS.back.t[2],duration:total,ease:'sine.inOut'});
   gsap.to(orb,{a:a1, r:Math.hypot(back[0],back[2]), y:back[1], duration:total, ease:'sine.inOut',
     onUpdate:()=>camera.position.set(Math.sin(orb.a)*orb.r, orb.y, Math.cos(orb.a)*orb.r)});
-  const rows = $$('#sig .st'), tl = gsap.timeline();
+  const tl = gsap.timeline(), cellOf = p => $(`#pb .cell[data-p="${p}"]`), tick = $('#tick');
+  let lastDone = '';
   pending.push(tl);
-  const box = new THREE.Box3().setFromObject(rig), top = box.max.y + .01, bot = box.min.y - .01;
+  const box = new THREE.Box3().setFromObject(product), top = box.max.y + .01, bot = box.min.y - .01;
   const sweep = {y:top}; beamAt(top); beam(true);
   tl.to(sweep,{y:bot, duration:total/2, ease:'sine.inOut', onUpdate:()=>beamAt(sweep.y)}, 0)
     .to(sweep,{y:top, duration:total/2, ease:'sine.inOut', onUpdate:()=>beamAt(sweep.y)}, total/2)
     .call(()=>beam(false), null, total);
   SCAN.forEach(([t,part],i)=>{
-    const r = rows[i], ic = r.querySelector('.ic'), em = r.querySelector('em'), at = i*BEAT, last = i===SCAN.length-1;
-    tl.call(()=>{ ic.className='ic run'; cuePart = part; r.classList.add('now'); }, null, at);
+    const c = cellOf(part), at = i*BEAT, last = i===SCAN.length-1;
+    tl.call(()=>{ c.className='cell run'; cuePart = part;
+      $('#ssub').textContent = `Reading: ${t} · ${i+1} / ${SCAN.length}`;
+      tick.innerHTML = `${lastDone}<div class="now">… ${t}</div>`; }, null, at);
     tl.call(()=>{
-      r.classList.remove('now'); cuePart = null;
-      if(last){ ic.className='ic bad'; ic.textContent='!'; em.innerHTML='<span class="red">Poor contact</span>'; faultPart='contact';
-        $('#stitle').innerHTML = 'Found <span class="red">1</span> issue'; $('#arc').classList.add('bad'); hudState('fault'); }
-      else { ic.className='ic ok'; ic.textContent='✓'; em.textContent='Normal'; }
-      $('#ssub').textContent = `Checked ${i+1} / ${SCAN.length}`;
-      gsap.fromTo(ic,{scale:.6},{scale:1,duration:.35,ease:'back.out(3)'});
+      cuePart = null;
+      if(last){ c.className='cell bad'; faultPart='contact';
+        $('#stitle').innerHTML = 'Found <span class="red">1</span> issue'; $('#arc').classList.add('bad'); hudState('fault');
+        $('#ssub').textContent = `Checked ${SCAN.length} / ${SCAN.length}`;
+        tick.innerHTML = `${lastDone}<div class="red">! ${t} · poor contact</div>`; }
+      else { c.className='cell ok'; lastDone = `<div>✓ ${t} · normal</div>`; }
+      gsap.fromTo(c,{scaleY:.5},{scaleY:1,duration:.35,ease:'back.out(3)'});
     }, null, at + BEAT*.75);
   });
   tl.call(()=>result(), null, total + .7);
@@ -784,12 +882,9 @@ const result = go(()=>{
     ${phase(0)}
     <div class="eyebrow green">Faulty part found</div>
     <div class="partcard"><span class="ring"><i></i></span><div><b>Quick-release contact ring</b><small>Back of the wheel · QR-C01</small></div><span class="tag">Poor contact</span></div>
-    <div class="sec">Results</div>
-    <div class="rows">
-      <div class="st"><span class="ic ok">✓</span>Buttons, shift paddles, dials<em>Normal</em></div>
-      <div class="st"><span class="ic ok">✓</span>Rev light bar<em>Normal</em></div>
-      <div class="st"><span class="ic bad">!</span>Quick release<em class="red">23 disconnects in 10 min</em></div>
-    </div>
+    <div class="sec">Results<span style="float:right">${SCAN.length-1} normal · 1 issue</span></div>
+    ${pmCard('wheel','res')}${pmCard('base','res')}
+
     <div class="sec">Repair</div>
     <div class="rows">
       <div class="row"><span>Repair method</span><span class="blue">Self-replaceable</span></div>
@@ -799,16 +894,18 @@ const result = go(()=>{
   `<button class="btn" id="have">Start repair</button><button class="btn2" id="order">Order contact ring · € 12.90</button>`);
   $('#order').onclick = ()=>{ cart.qr = 1; setTab('store'); toast('Added to cart'); };
   $('#have').onclick = ()=>repair(0);
+  pmHover();
+
 });
 
 /* ---- 3 · Fix ---- */
-const BODY_OFF = .09;   // the whole wheel (incl. quick-release) slides forward = pulled off the base
+const BODY_OFF = .13;   // the whole wheel (incl. quick-release) slides out along its axis = pulled off the base
 const STEPS = [
-  { t:'Disconnect power', d:'Unplug the power cable from the back of the base.', tools:['No tools needed'], img:'Back of the base · power port', v:'back', cue:null, co:null,
+  { t:'Disconnect power', d:'Unplug the power cable from the back of the base.', tools:['No tools needed'], img:'Back of the base · power port', pic:'assets/disconnect-power.png', v:'back', cue:null, co:null,
     set(){}, play(){ return gsap.timeline(); }, ok:'Power is off.' },
   { t:'Remove the wheel', d:'Hold the quick-release lock ring and pull the wheel straight out.', tools:['No tools needed'], img:'Hand holding the quick-release lock ring', v:'back', cue:'qr', co:['qr','Hold the lock ring, pull out'],
     set(){ rig.position.z = BODY_OFF; }, play(){ return gsap.timeline().to(rig.position,{z:BODY_OFF,duration:1.2,ease:'power3.inOut'}); }, ok:'Wheel removed. Put it on a soft pad.' },
-  { t:'Remove the old contact ring', d:'Use the flat pry tool at the notch to gently lift the yellow contact ring, then take it off.', tools:['Flat pry tool'], img:'Notch position on the contact ring', v:'backNear', cue:'contact', co:['contact','Pry up at the notch'],
+  { t:'Remove the old contact ring', d:'Gently lift the yellow contact ring at the notch, then take it off.', tools:['No tools needed'], img:'Notch position on the contact ring', v:'backNear', cue:'contact', co:['contact','Lift at the notch'],
     set(){ collar.position.z = -.04; collar.material.opacity = 0; },
     play(){ return gsap.timeline().to(collar.position,{z:-.04,duration:1,ease:'power3.in'}).to(collar.material,{opacity:0,duration:.4},'-=.3'); },
     ok:'Old contact ring removed.' },
@@ -820,10 +917,22 @@ const STEPS = [
     set(){ rig.position.z = 0; }, play(){ return gsap.timeline().to(rig.position,{z:0,duration:1.1,ease:'power3.inOut'}); }, ok:'Wheel refitted.' },
   { t:'Power on and test', d:'Reconnect power and test the buttons in G HUB.', tools:['G HUB'], img:'G HUB button test screen', v:'front', cue:null, co:null, test:true,
     set(){}, play(){
-      return gsap.timeline()
-        .to(rig.rotation,{z:.45,duration:.8,ease:'sine.inOut'}).call(()=>meter(0,6))
-        .to(rig.rotation,{z:-.45,duration:1.3,ease:'sine.inOut'}).call(()=>meter(6,12))
-        .to(rig.rotation,{z:0,duration:.8,ease:'sine.inOut'});
+      // a light line runs over the whole set (checking); each part it reads ticks green in turn; then one green
+      // pulse over everything (all good) that settles back, leaving only the new contact ring green
+      const ORDER = ['contact','qr','hub','buttons','dpad','dials','paddles','leds','grips','body'];
+      const box = new THREE.Box3().setFromObject(product), top = box.max.y + .01, bot = box.min.y - .01, sw = {y:top};
+      okParts.clear(); OKG.v = .32;
+      const t = gsap.timeline()
+        .call(()=>{ beamAt(top); beam(true); }, null, 0)
+        .to(sw, {y:bot, duration:2.6, ease:'sine.inOut', onUpdate:()=>beamAt(sw.y)}, 0)
+        .call(()=>beam(false), null, 2.6)
+        .call(()=>meter(0,6), null, .8)
+        .call(()=>meter(6,12), null, 2.1);
+      ORDER.forEach((part,i)=>t.call(()=>{ cuePart = part; okParts.add(part); }, null, .25 + i*.24));
+      return t.call(()=>{ cuePart = null; }, null, 2.7)
+        .to(OKG, {v:.75, duration:.25, ease:'power2.out'}, 2.8)
+        .to(OKG, {v:0, duration:.9, ease:'power2.in'}, 3.15)
+        .call(()=>okParts.clear(), null, 4.05);
     }, ok:'No disconnects through the full rotation.' },
 ];
 function meter(a,b){ $$('#meter i').forEach((m,k)=>{ if(k>=a&&k<b) setTimeout(()=>{ m.classList.add('on'); m.style.height=(70+((k*37)%30))+'%'; },(k-a)*80); }); }
@@ -844,7 +953,7 @@ const repair = go(i=>{
     <div class="h">${s.t}</div>
     <p class="desc">${s.d}</p>
     <div class="tools">${s.tools.map(t=>`<span>${t}</span>`).join('')}</div>
-    ${IMG(s.img)}
+    ${s.pic ? PIC(s.pic, s.img) : IMG(s.img)}
     ${s.test?`<div class="meter" id="meter">${'<i></i>'.repeat(12)}</div>`:''}
     <div class="fb" id="fb"></div>`,
   `<button class="btn" id="done">${CHECK}<span>${s.test?'Start test':'Step done'}</span></button>
@@ -873,21 +982,20 @@ const done = go(()=>{
       <div class="badge" id="badge"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
       <div class="h" style="margin-top:20px">All fixed!</div>
       <p class="desc">Your wheel is ready for the track again 🏁</p>
-    </div>
-    <div class="rows" style="margin-top:22px">
-      <div class="row"><span>Disconnects in the last 10 min</span><span class="green">0</span></div>
-      <div class="row"><span>Part replaced</span><span>Quick-release contact ring QR-C01</span></div>
-      <div class="row"><span>Time taken</span><span>6 min</span></div>
     </div>`,
-  `<button class="btn" id="fin">Finish</button>`);
-  $('#fin').onclick = start;
+  `<button class="btn" id="fin">Claim your reward →</button>`);
+  $('#fin').onclick = medal;
   celebrate();
 });
 function celebrate(){
   // badge pops in, the check draws, confetti bursts out of it, the wheel does a little happy spin
   anime({targets:'#badge', scale:[0,1], rotate:[-25,0], duration:900, delay:250, easing:'easeOutElastic(1, .55)'});
   anime({targets:'#badge path', strokeDashoffset:[anime.setDashoffset,0], duration:450, delay:650, easing:'easeOutQuad'});
-  const host = $('.yay'), b = $('#badge'); if(!host || !b) return;
+  burst($('.yay'), $('#badge'), 600);
+  gsap.fromTo(product.rotation,{y:0},{y:Math.PI*2, duration:1.6, delay:.5, ease:'power3.inOut'});
+}
+function burst(host, b, delay){
+  if(!host || !b) return;
   const COLS = ['#1199ff','#3ddc84','#ffb020','#ff4545','#b050ff','#ffffff'];
   setTimeout(()=>{
     for(let i=0;i<36;i++){
@@ -900,8 +1008,91 @@ function celebrate(){
       anime({targets:c, translateX:Math.cos(a)*d, translateY:[0, Math.sin(a)*d*.8 + 60], rotate:anime.random(-360,360),
         opacity:[{value:1,duration:50},{value:0,delay:700,duration:400}], duration:1300, easing:'easeOutCubic', complete:()=>c.remove()});
     }
-  }, 600);
-  gsap.fromTo(rig.rotation,{y:0},{y:Math.PI*2, duration:1.6, delay:.5, ease:'power3.inOut'});
+  }, delay);
+}
+
+/* =========================================================
+   MEDALS — flat sticker medals: pit-sign / race-decal style, site colours, cream die-cut edge, hard shadow
+   ========================================================= */
+const STK = (()=>{
+  const B='#1199ff', GR='#3ddc84', AM='#ffb020', CR='#ece8df', INK='#16171b', LK='#45484e';
+  const SH='<filter id="stk-sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="0" flood-color="#000" flood-opacity=".45"/></filter>';
+  const cut = sh=>`<g filter="url(#stk-sh)" fill="${CR}" stroke="${CR}" stroke-width="14" stroke-linejoin="round">${sh}</g>`;
+  const svg = (inner, z, rot=0)=>`<svg class="stk" width="${z}" height="${z}" viewBox="0 0 200 200" style="transform:rotate(${rot}deg)"><defs>${SH}</defs>${inner}</svg>`;
+  const T = (x,y,sz,t,f=INK,a='middle')=>`<text class="tx" x="${x}" y="${y}" font-size="${sz}" fill="${f}" text-anchor="${a}"${a==='start'?' font-style="italic"':''}>${t}</text>`;
+  const DIA='<rect x="42" y="42" width="116" height="116" rx="14" transform="rotate(45 100 100)"/>', PLATE='<rect x="14" y="44" width="172" height="112" rx="12"/>',
+        ROUND='<circle cx="100" cy="100" r="66"/>', SLANT='<path d="M40 56h150l-30 88H10z"/>', SHIELD='<path d="M30 40h140v86l-70 40-70-40z"/>';
+  return {
+    DIA, PLATE, ROUND, SHIELD,
+    first:(z,r=-4)=>svg(cut(DIA)+`<g fill="${AM}">${DIA}</g>
+      <rect x="52" y="52" width="96" height="96" rx="8" transform="rotate(45 100 100)" fill="none" stroke="${INK}" stroke-width="5"/>
+      <path d="M88 70v60" stroke="${INK}" stroke-width="9" stroke-linecap="round"/><path d="M92 70h34l-8 12 8 12H92z" fill="${INK}"/>`, z, r),
+    qr:(z,r=0)=>svg(cut(SLANT)+`<g fill="${B}">${SLANT}</g>
+      <path d="M30 120h52M38 132h36" stroke="${CR}" stroke-width="5" stroke-linecap="round" opacity=".6"/>
+      <circle cx="62" cy="92" r="20" fill="none" stroke="${CR}" stroke-width="8"/><circle cx="62" cy="92" r="6" fill="${CR}"/>
+      ${T(98,96,25,'QUICK',CR,'start')}${T(94,122,25,'HANDS',INK,'start')}`, z, r),
+    three:(z,r=4)=>svg(cut(SHIELD)+`<g fill="${GR}">${SHIELD}</g>
+      ${Array.from({length:14},(_,i)=>`<rect x="${30+i*10}" y="40" width="10" height="10" fill="${i%2?INK:CR}"/><rect x="${30+i*10}" y="50" width="10" height="10" fill="${i%2?CR:INK}"/>`).join('')}
+      ${[0,1,2].map(i=>`<path d="M68 ${78+i*20} l32 16 32-16" fill="none" stroke="${INK}" stroke-width="9"/>`).join('')}`, z, r),
+    // a medal not earned yet: dashed outline of its sign shape
+    lock:(sh,z)=>svg(`<g fill="none" stroke="${LK}" stroke-width="5" stroke-dasharray="10 9">${sh}</g>${T(100,116,40,'?',LK)}`, z),
+    // a repair that earned no medal: plain grey part sign (grips)
+    grips:z=>svg(`<circle cx="100" cy="100" r="66" fill="#2f3136"/><rect x="74" y="62" width="18" height="76" rx="9" fill="#8a8d93"/><rect x="108" y="62" width="18" height="76" rx="9" fill="#8a8d93"/>`, z),
+  };
+})();
+
+/* ---- Medal unlocked (after the repair is finished) ---- */
+let earned = false, freshWall = false;   // set when this repair is finished: Hat trick + the new log entry appear in My garage
+const medal = go(()=>{
+  resetScene(); view('front');
+  if(!earned){ earned = true; freshWall = true; }
+  render(`
+    <div class="medal">
+      <div class="glow" id="mdl">${STK.three(140,-6)}</div>
+      <div class="tag">New medal</div>
+      <div class="h">Hat trick</div>
+      <p class="desc">Your third repair, done by yourself</p>
+      <div class="wall"><span>${STK.first(28,0)}${STK.qr(28,0)}<span class="slot" id="slot"><i></i></span></span>+1 on your wall · 3 of 12</div>
+    </div>`,
+  `<button class="btn go" id="towall">View medal wall</button><button class="btn sub" id="race">All fixed! Back to racing</button>`);
+  $('#race').onclick = start;
+  $('#towall').onclick = ()=>setTab('garage');
+  // the sticker slaps on, confetti bursts out of it, then a small copy drops into the empty slot on the wall
+  anime({targets:'#mdl', scale:[0,1], rotate:[-25,0], duration:900, delay:200, easing:'easeOutElastic(1, .55)'});
+  burst($('.medal'), $('#mdl'), 450);
+  later(1.5, ()=>{ const sl = $('#slot'); if(!sl) return; sl.innerHTML = STK.three(28,0);
+    anime({targets:'#slot', scale:[0,1], duration:600, easing:'easeOutElastic(1, .6)'}); });
+});
+
+/* =========================================================
+   MY GARAGE — repair log + medal wall
+   ========================================================= */
+const MEDALS = [
+  {n:'First fix',    how:'Finish your first repair', svg:z=>STK.first(z)},
+  {n:'Quick hands',  how:'Fix the quick release',    svg:z=>STK.qr(z)},
+  {n:'Hat trick',    how:'3 repairs done',           svg:z=>STK.three(z), shape:STK.SHIELD, isNew:true},
+  {n:'Ring master',  how:'Replace a contact ring',   lock:STK.ROUND},
+  {n:'Under 10 min', how:'A repair in under 10 min', lock:STK.DIA},
+  {n:'Paddle swap',  how:'Replace a shift paddle',   lock:STK.PLATE},
+  {n:'High five',    how:'5 repairs done',           lock:STK.ROUND},
+  {n:'Fresh grips',  how:'Replace the grips',        lock:STK.DIA},
+];
+const REPAIRS = [
+  {ic:z=>STK.qr(z,0),    a:'Quick release',    b:'Contact ring replaced · 12 min', d:'Nov 19', isNew:true},
+  {ic:z=>STK.first(z,0), a:'Shift paddle (R)', b:'Replaced · 9 min',               d:'Sep 21'},
+];
+function garage(){
+  const locked = m => m.lock || (m.isNew && !earned), log = REPAIRS.filter(r=>!r.isNew || earned);
+  const got = MEDALS.filter(m=>!locked(m)).length, fresh = freshWall; freshWall = false;
+  pb.innerHTML = `
+    <div class="gstats"><div class="gstat"><b>${earned ? 3 : 2}</b><span>Repairs</span></div><div class="gstat"><b>${got}<small>/12</small></b><span>Medals</span></div></div>
+    <div class="gsec">Medal wall</div>
+    <div class="mgrid">${MEDALS.map(m=>`<div class="mcell ${locked(m)?'lock':''} ${fresh&&m.isNew?'fresh':''}" title="${m.how}"><span class="pop">${locked(m)?STK.lock(m.lock||m.shape,60):m.svg(60)}</span>${m.n}</div>`).join('')}</div>
+    <div class="gsec">Repair log<small>View all</small></div>
+    <div style="margin-top:2px">${log.map(r=>`<div class="glog ${fresh&&r.isNew?'fresh':''}">${r.ic(38)}<div class="t"><div>${r.a}</div><div>${r.b}</div></div><div class="d">${r.d}</div></div>`).join('')}</div>`;
+  pf.innerHTML = '';
+  // the earned stickers slap onto the wall one after another
+  anime({targets:'.mcell:not(.lock) .pop', scale:[.4,1], rotate:[-12,0], opacity:[0,1], duration:700, delay:anime.stagger(90,{start:200}), easing:'easeOutElastic(1, .6)'});
 }
 
 /* =========================================================
@@ -909,7 +1100,6 @@ function celebrate(){
    ========================================================= */
 const ITEMS = [
   {id:'qr',  nm:'Quick-release contact ring', sku:'QR-C01', price:12.90, need:true},
-  {id:'pry', nm:'Flat pry tool', sku:'TOOL-PRY · Repair tool', price:3.90},
 ];
 const cart = {};
 function store(){
